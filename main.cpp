@@ -9,6 +9,7 @@
 int main(int argc, char *argv[])
 {
     Admin control;
+    /* Simple test */
 
     vector<string> Drinks;
     Drinks.push_back("Vodka og Redbull");
