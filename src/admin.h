@@ -5,6 +5,7 @@
 #include <string>
 #include "src/dbif.h"
 #include <vector>
+#include <map>
 #include "src/drink.h"
 #include "src/log.h"
 #include "src/guidummy.h"
@@ -15,8 +16,9 @@ class Admin
 {
 public:
     Admin();
-    void checkNameDrink(string namecheck);
+    bool checkNameDrink(string namecheck);
     void orderDrinks(vector<string> drinks);
+    map<string,string> checkStock();
     void getIngredientsName(vector <string> & currentIngredients);
     bool createDrink(Drink newDrink);
     void getDrinksName();
@@ -38,5 +40,8 @@ private:
     GUI GUINF;
 
 };
+
+
+
 #endif // ADMIN
 

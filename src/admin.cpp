@@ -4,23 +4,20 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <map>
 
 Admin::Admin()
 {
    //
 }
 
-void Admin::checkNameDrink(string namecheck)
+bool Admin::checkNameDrink(string namecheck)
 {
     if(db.checkName(DRINK,namecheck)){
-        GUINF.print("Name already exist.");
-        return;
+        return false; // findes allerede
     }
     else{
-       vector<string> currentIngredients;
-       getIngredientsName(currentIngredients);
-       ///read()
-
+       return true;
     }
 
 }
@@ -57,6 +54,36 @@ void Admin::getDrinksName()
         GUINF.printDrinks(drinks);
     }
 }
+
+map<string,string> Admin::checkStock()
+{
+    vector<string> ings;
+
+    if(db.getIngredientsName(ings)!=0){
+        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        map<string,string> error;
+        return error;
+    }
+
+
+    map<string,string> stock; // Navn, mængde
+
+    int fd = open("/dev/spidev", O_RDWR);
+    u_int8_t cmd = 0x02;
+    write(fd,&cmd,8); // stock state
+
+
+    for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
+        char tmpBuf[8];
+        read(fd,tmpBuf,8);
+        string tmp(tmpBuf);
+        stock[*iter] = tmp;
+    }
+
+   return stock;
+
+}
+
 
 void Admin::getDrink(string name)
 {
