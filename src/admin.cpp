@@ -191,9 +191,9 @@ void Admin::deleteIngredient(string todelte)
 
 void Admin::orderDrinks(vector<string> drinks){
     if(GUINF.confirmOrder()){
-
+    	
+	int fd = open("/dev/spidev", O_RDWR);
         for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
-            int fd = open("/dev/spidev", O_RDWR);
 
             u_int8_t cmd = 0x01;
             write(fd,&cmd,8); // Order state
