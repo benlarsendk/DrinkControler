@@ -35,6 +35,13 @@ public:
     }
     string name;
     DrinkContent content[5];
+    
+    Drink(Drink& Copy){
+        this->name = Copy.name;
+        for (int i = 0; i < 5; i++){
+            this->content[i] = Copy.content[i];
+        }
+    }
 };
 
 
