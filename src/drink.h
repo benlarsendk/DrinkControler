@@ -42,6 +42,14 @@ public:
             this->content[i] = Copy.content[i];
         }
     }
+    
+    Drink& operator=(const Drink& cp);
+    {
+        this->name = Copy.name;
+        for (int i = 0; i < 5; i++){
+            this->content[i] = Copy.content[i];
+        } 
+    }
 };
 
 
