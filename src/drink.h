@@ -43,7 +43,7 @@ public:
         }
     }
     
-    Drink& operator=(const Drink& cp);
+    Drink& operator=(const Drink& Copy);
     {
         this->name = Copy.name;
         for (int i = 0; i < 5; i++){
