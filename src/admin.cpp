@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include <map>
 
-Admin::Admin()
+Admin::Admin(Controller *controller)
 {
-   //
+   GUINF = controller;//
 }
 
 bool Admin::checkNameDrink(string namecheck)
@@ -25,11 +25,11 @@ bool Admin::checkNameDrink(string namecheck)
 void Admin::getIngredientsName(vector <string> & currentIngredients)
 {
     if(db.getIngredientsName(currentIngredients)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.printIngredients(currentIngredients);
+        GUINF->printIngredients(currentIngredients);
     }
 }
 
@@ -37,7 +37,7 @@ void Admin::getIngredientsName(vector <string> & currentIngredients)
 bool Admin::createDrink(Drink newDrink)
 {
     if(db.createDrink(newDrink)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return false;
     }
     else return true;
@@ -47,11 +47,11 @@ void Admin::getDrinksName()
 {
     vector<string> drinks;
     if(db.getDrinksName(drinks)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.printDrinks(drinks);
+        GUINF->printDrinks(drinks);
     }
 }
 
@@ -60,7 +60,7 @@ map<string,string> Admin::checkStock()
     vector<string> ings;
 
     if(db.getIngredientsName(ings)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         map<string,string> error;
         return error;
     }
@@ -89,38 +89,38 @@ void Admin::getDrink(string name)
 {
     Drink drink;
     if(db.getDrink(name,drink)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.printDrink(drink);
+        GUINF->printDrink(drink);
     }
 }
 
 void Admin::changeDrink(Drink drinktoedit)
 {
     if(db.changeDrink(drinktoedit)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.print("OK");
+        GUINF->print("OK");
     }
 }
 
 void Admin::deleteDrink(string todelete)
 {
-    if(GUINF.getConfirm()){
+    if(GUINF->getConfirm()){
        if(db.remove(todelete,DRINK)!=0){
-           GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+           GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
            return;
        }
        else{
-           GUINF.print("The entry has been deleted.");
+           GUINF->print("The entry has been deleted.");
        }
     }
     else{
-        GUINF.print("Delete canceled");
+        GUINF->print("Delete canceled");
     }
 }
 
@@ -140,11 +140,11 @@ bool Admin::checkContainer(int addr)
 void Admin::createIngredient(string name, int addr)
 {
     if(db.createIngredient(name,addr)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.print("Ingredient created");
+        GUINF->print("Ingredient created");
     }
 }
 
@@ -152,11 +152,11 @@ void Admin::getIngredientAddress(string ingredient)
 {
     int addr;
     if(db.getIngAdress(ingredient,addr)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.printInfo(addr);
+        GUINF->printInfo(addr);
     }
 }
 
@@ -164,36 +164,36 @@ void Admin::getIngredientAddress(string ingredient)
 void Admin::changeIngredientAddr(string name,int newAddr)
 {
     if(db.changeIngrediensAddr(name,newAddr)!=0){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF.print("Ingredient changed");
+        GUINF->print("Ingredient changed");
     }
 }
 
 void Admin::deleteIngredient(string todelte)
 {
     if(db.checkForUse(todelte)){
-        GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
         if(db.remove(todelte,INGREDIENT)!=0){
-            GUINF.print("DB ERROR: " + getErrorPT(db.getLastError()));
+            GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
             return;
         }
         else{
-            GUINF.print("Ingredient deleted");
+            GUINF->print("Ingredient deleted");
         }
     }
 }
 
 void Admin::orderDrinks(vector<string> drinks){
-    if(GUINF.confirmOrder()){
-
+    if(GUINF->confirmOrder()){
+    	
+	int fd = open("/dev/spidev", O_RDWR);
         for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
-            int fd = open("/dev/spidev", O_RDWR);
 
             u_int8_t cmd = 0x01;
             write(fd,&cmd,8); // Order state
@@ -219,17 +219,17 @@ void Admin::orderDrinks(vector<string> drinks){
                 }
 
                 log.log("Ingredient: " + current.name + " has been written to PSoC");
-                GUINF.print("Drink " + current.name + " Has been ordered");
+                GUINF->print("Drink " + current.name + " Has been ordered");
                 db.saveOrder(current.name);
             }
             else{
-                GUINF.print("DB ERROR: " +getErrorPT(db.getLastError()));
+                GUINF->print("DB ERROR: " +getErrorPT(db.getLastError()));
                 return;
             }
         }
     }
     else{
-        GUINF.print("Order cancelled");
+        GUINF->print("Order cancelled");
         return;
     }
 }
@@ -248,8 +248,8 @@ void Admin::clean()
 	}
 
 
-	GUINF.print("Add water");
-	while (!GUINF.confirmOrder()){
+    GUINF->print("Add water");
+    while (!GUINF->confirmOrder()){
         sleep(1);
 	}
 
@@ -257,8 +257,8 @@ void Admin::clean()
     while(read(fd,buff2,8) == 0){
         sleep(1);
 	}
-	GUINF.print("Done. Add original and confir.");
-	while(!GUINF.confirmOrder()){
+    GUINF->print("Done. Add original and confir.");
+    while(!GUINF->confirmOrder()){
         sleep(1);
 	}
 	return;

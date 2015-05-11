@@ -11,7 +11,7 @@ DatabaseIF::DatabaseIF()
 {
 
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/home/deblab/Dropbox/IHA/3SEM/PRJ3/drinksdatabase.db");
+    db.setDatabaseName("/home/stud/Documents/GUI/secondRunningbar/DrinkControler-master/database/drinksdatabase.db");
     if (!db.open())
         lastError = DB_FAILED_TO_OPEN;
     else

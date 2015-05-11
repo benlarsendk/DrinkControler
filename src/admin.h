@@ -8,7 +8,7 @@
 #include <map>
 #include "src/drink.h"
 #include "src/log.h"
-#include "src/guidummy.h"
+#include "controller.h"
 
 using namespace std;
 
@@ -16,6 +16,7 @@ class Admin
 {
 public:
     Admin();
+    Admin(Controller*);
     bool checkNameDrink(string namecheck);
     void orderDrinks(vector<string> drinks);
     map<string,string> checkStock();
@@ -37,7 +38,7 @@ public:
 private:
     DatabaseIF db;
     Logger log;
-    GUI GUINF;
+    Controller *GUINF;
 
 };
 
