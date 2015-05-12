@@ -38,6 +38,7 @@ public:
     bool checkName(int, string);
     int getIngredientsName(vector <string>&);
     int createDrink(Drink &);
+	int addImage(string toAdd);
     int getDrink(string, Drink &);
     bool checkForUse(string);
     bool checkContainerInUse(int);

@@ -160,15 +160,13 @@ int DatabaseIF::createDrink(Drink & inDrink)
     if (!checkName(DRINK,inDrink.name))
     {
         //Nedenstående burde være generisk
-        QString bindQuery = "INSERT INTO Drinks ([Navn],[cont_1_name],[cont_1_amt],[cont_2_name],[cont_2_amt],[cont_3_name],[cont_3_amt],[cont_4_name],[cont_4_amt],[cont_5_name],[cont_5_amt],[path]) VALUES(:name,:cname1,:camt1,:cname2,:camt2,:cname3,:camt3,:cname4,:camt4,:cname5,:camt5,:path)";
+        QString bindQuery = "INSERT INTO Drinks ([Navn],[cont_1_name],[cont_1_amt],[cont_2_name],[cont_2_amt],[cont_3_name],[cont_3_amt],[cont_4_name],[cont_4_amt],[cont_5_name],[cont_5_amt]) VALUES(:name,:cname1,:camt1,:cname2,:camt2,:cname3,:camt3,:cname4,:camt4,:cname5,:camt5)";
         QSqlQuery query;
         query.prepare(bindQuery);
 
         if (inDrink.name != "NOT_DECLARED"){
             query.bindValue(":name",QString::fromStdString(inDrink.name));
         }
-
-        query.bindValue(":path",QString::fromStdString(inDrink.path));
 
         for (int i = 0; i < 5; i++){
             ostringstream csname;       // Ostring så vi kan appende i
@@ -204,6 +202,10 @@ int DatabaseIF::createDrink(Drink & inDrink)
 
 }
 
+int addImage(string toAdd){
+	
+}
+
 int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
 {
     QSqlQuery query;
@@ -216,8 +218,7 @@ int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
             if (tmpString == namesearch)
             {
                 int x = 0;
-                outDrink.name = query.value().toString().toStdString();
-                outDrink.path = query.value(11).toString().toStdString();
+                outDrink.name = query.value(0).toString().toStdString();
                 for (int i = 0; i < 5; i++){
                     outDrink.content[i].name = query.value(x+1).toString().toStdString();
                     outDrink.content[i].amount = query.value(x+2).toInt();

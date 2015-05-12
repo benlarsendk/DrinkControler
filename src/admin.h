@@ -8,7 +8,7 @@
 #include <map>
 #include "src/drink.h"
 #include "src/log.h"
-#include "controller.h"
+//#include "controller.h"
 
 using namespace std;
 
@@ -33,6 +33,7 @@ public:
     void changeIngredientAddr(string name,int newAddr);
     void deleteIngredient(string todelte);
 	void clean();
+//	void addImage(string toImage);
     string getErrorPT(int);
 
 private:
