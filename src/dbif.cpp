@@ -1,9 +1,6 @@
 #include "dbif.h"
-#include <iostream>
-#include <vector>
-#include <src/drink.h>
-#include <sstream>
-#include "src/log.h"
+
+
 
 using namespace std;
 
@@ -216,7 +213,7 @@ int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
             if (tmpString == namesearch)
             {
                 int x = 0;
-                outDrink.name = query.value().toString().toStdString();
+                outDrink.name = query.value(0).toString().toStdString();
                 outDrink.path = query.value(11).toString().toStdString();
                 for (int i = 0; i < 5; i++){
                     outDrink.content[i].name = query.value(x+1).toString().toStdString();

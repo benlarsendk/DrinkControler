@@ -7,6 +7,8 @@
 #include <vector>
 #include "src/drink.h"
 #include "src/log.h"
+#include <iostream>
+#include <sstream>
 
 #define DRINK 98
 #define INGREDIENT 99

@@ -7,24 +7,12 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int main()
 {
-    Admin control;
-    /*
-    /* Simple test
+   Controller tmp;
 
-    vector<string> Drinks;
-    Drinks.push_back("Vodka og Redbull");
-    Drinks.push_back("Cola and Soya for rich people");
-    control.orderDrinks(Drinks);
-*/
+   Admin LOL(&tmp);
 
-    map<string,string> test = control.checkStock();
-
-    for (map<string,string>::const_iterator iter = test.begin(); iter != test.end(); iter++){
-        cout << "Ingrediens: " << iter->first << endl << "Mængde: " << iter->second << endl;
-    }
-    return 0;
 }
 
 

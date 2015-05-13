@@ -1,5 +1,5 @@
 #include "log.h"
-#include "unistd.h"
+
 
 
 Logger::Logger()

@@ -3,7 +3,8 @@
 
 #include <vector>
 #include "src/drink.h"
-class GUI
+
+class Controller
 {
 public:
    void printIngredients(vector<string>);

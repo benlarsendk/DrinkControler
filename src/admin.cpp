@@ -1,23 +1,30 @@
 #include "admin.h"
-#include "guidummy.h"
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <map>
+
 
 Admin::Admin(Controller *controller)
 {
    GUINF = controller;//
+   server = new Server(this);
+   server->start();
 }
 
-bool Admin::checkNameDrink(string namecheck)
+
+/*Admin::Admin()
+{
+    server = new Server();
+}*/
+
+Admin::~Admin(){
+
+    delete server;
+}
+string Admin::checkNameDrink(string namecheck)
 {
     if(db.checkName(DRINK,namecheck)){
-        return false; // findes allerede
+        return "FALSE";
     }
     else{
-       return true;
+       return "TRUE";
     }
 
 }
@@ -25,33 +32,31 @@ bool Admin::checkNameDrink(string namecheck)
 void Admin::getIngredientsName(vector <string> & currentIngredients)
 {
     if(db.getIngredientsName(currentIngredients)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
+
+        currentIngredients.push_back("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
-    else{
-        GUINF->printIngredients(currentIngredients);
-    }
 }
 
 
-bool Admin::createDrink(Drink newDrink)
+string Admin::createDrink(Drink newDrink)
 {
     if(db.createDrink(newDrink)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return false;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return "FALSE";
     }
-    else return true;
+    else return "TRUE";
 }
 
-void Admin::getDrinksName()
+vector<string> Admin::getDrinksName()
 {
     vector<string> drinks;
     if(db.getDrinksName(drinks)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return drinks;
     }
     else{
-        GUINF->printDrinks(drinks);
+        return drinks;
     }
 }
 
@@ -60,7 +65,7 @@ map<string,string> Admin::checkStock()
     vector<string> ings;
 
     if(db.getIngredientsName(ings)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
         map<string,string> error;
         return error;
     }
@@ -84,45 +89,42 @@ map<string,string> Admin::checkStock()
 
 }
 
-
-void Admin::getDrink(string name)
+Drink Admin::getDrink(string name)
 {
     Drink drink;
     if(db.getDrink(name,drink)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return drink;
     }
     else{
-        GUINF->printDrink(drink);
+        return drink;
     }
 }
 
 void Admin::changeDrink(Drink drinktoedit)
 {
     if(db.changeDrink(drinktoedit)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF->print("OK");
+        server->send("TRUE");
     }
 }
 
-void Admin::deleteDrink(string todelete)
+
+bool Admin::deleteDrink(string todelete)
 {
-    if(GUINF->getConfirm()){
        if(db.remove(todelete,DRINK)!=0){
-           GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-           return;
+           log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+           return false;
        }
        else{
-           GUINF->print("The entry has been deleted.");
+          log.log("The entry "+ todelete + " has been deleted.");
+          return true;
        }
-    }
-    else{
-        GUINF->print("Delete canceled");
-    }
 }
+
 
 bool Admin::checkNameIngredient(string name)
 {
@@ -140,129 +142,309 @@ bool Admin::checkContainer(int addr)
 void Admin::createIngredient(string name, int addr)
 {
     if(db.createIngredient(name,addr)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
         return;
     }
     else{
-        GUINF->print("Ingredient created");
+        server->send("Ingredient created");
     }
 }
 
-void Admin::getIngredientAddress(string ingredient)
+int Admin::getIngredientAddress(string ingredient)
 {
     int addr;
     if(db.getIngAdress(ingredient,addr)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return addr;
     }
     else{
-        GUINF->printInfo(addr);
+        return addr;
     }
 }
 
 
-void Admin::changeIngredientAddr(string name,int newAddr)
+bool Admin::changeIngredientAddr(string name,int newAddr)
 {
     if(db.changeIngrediensAddr(name,newAddr)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return false;
     }
     else{
-        GUINF->print("Ingredient changed");
+        return true;
     }
 }
 
-void Admin::deleteIngredient(string todelte)
+bool Admin::deleteIngredient(string todelte)
 {
     if(db.checkForUse(todelte)){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+        return false;
     }
     else{
         if(db.remove(todelte,INGREDIENT)!=0){
-            GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
-            return;
+            log.log("DB ERROR: " + getErrorPT(db.getLastError()));
+            return false;
         }
         else{
-            GUINF->print("Ingredient deleted");
+            return true;
         }
     }
 }
 
-void Admin::orderDrinks(vector<string> drinks){
-    if(GUINF->confirmOrder()){
-    	
-	int fd = open("/dev/spidev", O_RDWR);
-        for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
 
-            u_int8_t cmd = 0x01;
-            write(fd,&cmd,8); // Order state
-
-            Drink current;
-            int count = 0;
-            //db.getDrink(*i,current);
-
-            if(db.getDrink(*i,current) == 0){
-
-                vector<int> ingredients;
-                db.getAddress(current.name, ingredients);
-
-                for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
-                    u_int8_t ing = *x;
-                    u_int8_t amt = current.content[count].amount;
-
-
-                    write(fd,&ing,8);
-                    write(fd,&amt,8);
-                    count++;
-
-                }
-
-                log.log("Ingredient: " + current.name + " has been written to PSoC");
-                GUINF->print("Drink " + current.name + " Has been ordered");
-                db.saveOrder(current.name);
-            }
-            else{
-                GUINF->print("DB ERROR: " +getErrorPT(db.getLastError()));
-                return;
-            }
-        }
-    }
-    else{
-        GUINF->print("Order cancelled");
-        return;
-    }
-}
 
 void Admin::clean()
 {
 	int fd = open("/dev/spidev", O_RDWR);	
     u_int8_t clean = 0x03;
     char buff[8];
-    char buff2[8];
+
 
     write(fd,&clean,8);
 
     while(read(fd,buff,8) == 0){
         sleep(1);
 	}
+}
 
-
-    GUINF->print("Add water");
-    while (!GUINF->confirmOrder()){
-        sleep(1);
-	}
+void Admin::clean_water(){
+    u_int8_t clean = 0x03;
+    int fd = open("/dev/spidev", O_RDWR);
+    char buff2[8];
 
     write(fd,&clean,8);
+
     while(read(fd,buff2,8) == 0){
         sleep(1);
-	}
-    GUINF->print("Done. Add original and confir.");
-    while(!GUINF->confirmOrder()){
-        sleep(1);
-	}
-	return;
-	
+    }
+}
+
+void Admin::decode(string encoded, vector <string> & decoded){
+
+    string tmp;
+    for (int i = 3; i < encoded.length(); i++){
+
+        if (encoded[i] == ':'){
+            decoded.push_back(tmp);
+            tmp = "";
+        }
+        else tmp = tmp + encoded[i];
+    }
+
+}
+
+void Admin::parser(char * input){
+    if(input != NULL){
+        string data(input);
+        string cmd;
+        if (data[1] == ':'){
+            cmd = data[0];
+        }
+        else cmd = data.substr(0,2);
+
+        int id = atoi(cmd.c_str()); // få ID'et
+
+        vector<string> newData;
+        decode(data, newData);
+        string tosend;
+
+        tosend = "";
+        switch(id){
+
+        case CHECKNAMEDRINK:
+            {
+                if(checkNameDrink(newData.at(0)) == "TRUE"){
+                server->send("TRUE");
+            }
+                else{
+                    server->send("FALSE");
+                    }
+                break;
+        }
+        case CHECKSTOCK:
+            {
+                map<string,string> ings = checkStock();
+                for (map<string,string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
+                    tosend.append(iter->first);
+                    tosend += ":";
+                    tosend.append(iter->second);
+                    tosend += ":";
+                }
+                server->send(tosend);
+                break;
+
+            }
+        case GETINGREDIENTSNAME:
+            {
+                vector<string> current;
+                getIngredientsName(current);
+
+                for(vector<string>::iterator iter = current.begin(); iter != current.end(); iter++){
+                    tosend += *iter;
+                    tosend += ":";
+                }
+                server->send(tosend);
+                break;
+            }
+        case CREATEDRINK:
+            {
+
+                Drink newDrink;
+                newDrink.name = newData.at(1);
+                for (int i = 0; i < 5; i++){
+                    newDrink.content[i].name = newData.at(i+2);
+                    string amt = newData.at(i+3);
+                    newDrink.content[i].amount = atoi(amt.c_str());
+                }
+                newDrink.path = newData.at(12);
+                server->send(createDrink(newDrink));
+                break;
+            }
+
+        case GETDRINKSNAME:
+            {
+                vector<string> drinks = getDrinksName();
+
+                for (vector<string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
+                    tosend += *iter;
+                    tosend += ":";
+                }
+                server->send(tosend);
+                 break;
+            }
+
+        case GETDRINK:
+            {
+                Drink local = getDrink(newData.at(1));
+
+                tosend += local.name;
+                tosend += ":";
+                for (int i = 0; i < 5; i++){
+                    tosend+=local.content[i].name;
+                    tosend+=":";
+                    tosend+=local.content[i].amount;
+                    tosend+=":";
+                }
+                tosend += local.path;
+                tosend += ":";
+                server->send(tosend);
+                break;
+            }
+
+        case CHANGEDRINK:
+                {
+                    Drink newDrink;
+                    newDrink.name = newData.at(1);
+                    for (int i = 0; i < 5; i++){
+                        newDrink.content[i].name = newData.at(i+2);
+                        string amt = newData.at(i+3);
+                        newDrink.content[i].amount = atoi(amt.c_str());
+                    }
+                    newDrink.path = newData.at(12);
+                    server->send(createDrink(newDrink));
+                    break;
+                }
+
+        case DELETEDRINK:
+        {
+            if (deleteDrink(newData.at(1))){
+                server->send("TRUE");
+            }
+            else server->send("FALSE");
+            break;
+        }
+
+
+        case CHECKNAMEINGREDIENT:
+        {
+            if (checkNameIngredient(newData.at(1)))
+            {
+                server->send("TRUE");
+            }
+            else server->send("FALSE");
+
+            break;
+        }
+
+        case CHECKCONTAINER:
+        {
+            string par = newData.at(1);
+
+            if (checkContainer(atoi(par.c_str()))){
+                server->send("TRUE");
+            }
+            else server->send("FALSE");
+
+            break;
+        }
+            //
+
+        case CREATEINGREDIENT: // string name int addr
+        {
+            string name = newData.at(1);
+            string addr = newData.at(2);
+            int rAddr = atoi(addr.c_str());
+
+            createIngredient(name,rAddr);
+            break;
+        }
+        case GETINGREDIENTADDR:    
+        {
+            int addr = getIngredientAddress(newData.at(1));
+            string tmp;
+            tmp += addr;
+           // string tmp = std::to_string(addr);
+            server->send(tmp);
+        }
+            //
+            break;
+        case CHANGEINGREDIENTADDR:
+        {
+            string name = newData.at(1);
+            string addr = newData.at(2);
+            int rAddr = atoi(addr.c_str());
+            if(changeIngredientAddr(name,rAddr)){
+                server->send("TRUE");
+            }
+            else server->send("FALSE");
+            break;
+        }
+
+        case DELETEINGREDIENT:
+        {
+            if (deleteIngredient(newData.at(1))){
+                server->send("TRUE");
+            }
+            else server->send("FALSE");
+            break;
+        }
+
+        case CLEAN:
+        {
+            clean();
+            server->send("WATER");
+            break;
+        }
+        case CLEAN_WATER:
+        {
+
+            clean_water();
+            server->send("ADD_NORMAL");
+        }
+
+        case GETERROR:
+        {
+            string tmp = newData.at(1);
+            server->send(getErrorPT(atoi(tmp.c_str())));
+
+        }
+        default:
+            server->send("WHATTHEFUCK!?!?!");
+            break;
+        }
+
+
+        }
 }
 
 string Admin::getErrorPT(int error)

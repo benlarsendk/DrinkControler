@@ -18,8 +18,8 @@ TEMPLATE = app
 SOURCES += main.cpp \
     src/admin.cpp \
     src/dbif.cpp \
-    src/gui.cpp \
-    src/log.cpp
+    src/log.cpp \
+    src/server.cpp
 
 HEADERS += \
     dbif.h \
@@ -31,4 +31,5 @@ HEADERS += \
     src/dbif.h \
     src/drink.h \
     src/guidummy.h \
-    src/log.h
+    src/log.h \
+    src/server.h

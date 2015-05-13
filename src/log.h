@@ -6,6 +6,7 @@
 #include <string>
 #include <time.h>
 #include <ctime>
+#include "unistd.h"
 
 using namespace std;
 
