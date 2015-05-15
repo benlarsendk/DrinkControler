@@ -7,6 +7,7 @@
 #include <vector>
 #include "src/drink.h"
 #include "src/log.h"
+#include <pthread.h>
 
 #define DRINK 98
 #define INGREDIENT 99
@@ -54,6 +55,7 @@ private:
     QSqlDatabase db;
     Logger log;
     int lastError;
+
 };
 
 #endif // DBIF

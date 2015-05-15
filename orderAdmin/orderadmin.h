@@ -7,6 +7,8 @@
 #include <map>
 #include "src/drink.h"
 #include "src/log.h"
+#include <queue>
+#include <boost/thread.hpp>
 #include "guinf.h"
 
 using namespace std;
@@ -24,6 +26,11 @@ public:
 
 private:
     Controller* GUINF;
+    queue<vector<string> > orders; // New
+    pthread_mutex_t mtx;
+    pthread_cond_t bell;
+    void handleOrder();
+    boost::thread* worker;
     DatabaseIF db;
     Logger log;
 };

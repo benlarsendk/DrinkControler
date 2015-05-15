@@ -10,11 +10,16 @@
 orderAdmin::orderAdmin(Controller* inGui)
 {
     GUINF = inGui;
+    mtx = PTHREAD_MUTEX_INITIALIZER;
+    bell = PTHREAD_COND_INITIALIZER;
+    worker = new boost::thread(&orderAdmin::handleOrder, this);
+
 }
 
 orderAdmin::~orderAdmin()
 {
     delete GUINF;
+    delete worker;
 }
 
 void orderAdmin::getDrinksName()
@@ -30,48 +35,70 @@ void orderAdmin::getDrinksName()
 }
 
 void orderAdmin::orderDrinks(vector<string> drinks){
+
     if(GUINF->confirmOrder()){
-
-    int fd = open("/dev/spidev", O_RDWR);
-        for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
-
-            u_int8_t cmd = 0x01;
-            write(fd,&cmd,8); // Order state
-
-            Drink current;
-            int count = 0;
-            //db.getDrink(*i,current);
-
-            if(db.getDrink(*i,current) == 0){
-
-                vector<int> ingredients;
-                db.getAddress(current.name, ingredients);
-
-                for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
-                    u_int8_t ing = *x;
-                    u_int8_t amt = current.content[count].amount;
-
-
-                    write(fd,&ing,8);
-                    write(fd,&amt,8);
-                    count++;
-
-                }
-
-                log.log("Ingredient: " + current.name + " has been written to PSoC");
-                GUINF->print("Drink " + current.name + " Has been ordered");
-                db.saveOrder(current.name);
-            }
-            else{
-                GUINF->print("DB ERROR: " +getErrorPT(db.getLastError()));
-                return;
-            }
+        orders.push(drinks);
+        pthread_cond_signal(&bell);
         }
-    }
+
     else{
         GUINF->print("Order cancelled");
         return;
+        }
+}
+
+void orderAdmin::handleOrder()
+{
+    pthread_mutex_lock(&mtx);
+    for(;;)
+    {
+
+        while(orders.empty())
+            pthread_cond_wait(&bell,&mtx);
+
+        vector<string> drinks = orders.front();
+        orders.pop();
+
+
+        // Lock mutex and shti
+        int fd = open("/dev/spidev", O_RDWR);
+        for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
+
+                u_int8_t cmd = 0x01;
+                write(fd,&cmd,8); // Order state
+
+                Drink current;
+                int count = 0;
+                //db.getDrink(*i,current);
+
+                if(db.getDrink(*i,current) == 0){
+
+                    vector<int> ingredients;
+                    db.getAddress(current.name, ingredients);
+
+                    for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
+                        u_int8_t ing = *x;
+                        u_int8_t amt = current.content[count].amount;
+
+
+                        write(fd,&ing,8); // er vi sikker på at det er adressen?
+                        write(fd,&amt,8);
+                        count++;
+
+                    }
+
+                    log.log("Ingredient: " + current.name + " has been written to PSoC");
+                    GUINF->print("Drink " + current.name + " Has been ordered");
+                    db.saveOrder(current.name);
+                }
+                else{
+                    GUINF->print("DB ERROR: " +getErrorPT(db.getLastError()));
+
+                }
+            }
+
     }
+
 }
 
 string orderAdmin::getErrorPT(int error)

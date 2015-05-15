@@ -11,6 +11,8 @@ QT       -= gui
 TARGET = orderAdmin
 CONFIG   += console
 CONFIG   -= app_bundle
+LIBS    += -lboost_system
+LIBS    += -lboost_thread
 
 TEMPLATE = app
 
