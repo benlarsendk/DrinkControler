@@ -8,6 +8,8 @@
 #include "src/drink.h"
 #include "src/log.h"
 #include <iostream>
+#include <pthread.h>
+#include <boost/thread.hpp>
 #include <sstream>
 
 #define DRINK 98
@@ -55,6 +57,7 @@ public:
 private:
     QSqlDatabase db;
     Logger log;
+    boost::mutex mtx;
     int lastError;
 };
 

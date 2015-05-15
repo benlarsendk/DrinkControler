@@ -6,7 +6,6 @@ using namespace std;
 
 DatabaseIF::DatabaseIF()
 {
-
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("/home/stud/Documents/GUI/secondRunningbar/DrinkControler-master/database/drinksdatabase.db");
     if (!db.open())
@@ -18,6 +17,7 @@ DatabaseIF::DatabaseIF()
 
 DatabaseIF::~DatabaseIF()
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlDatabase::removeDatabase("QSQLITE");
     log.log("DB closed");
 }
@@ -29,6 +29,7 @@ int DatabaseIF::getLastError()
 
 int DatabaseIF::getDrinksName(vector<string> & drinklist)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
     if(query.exec("SELECT * FROM Drinks"))
     {
@@ -45,6 +46,7 @@ int DatabaseIF::getDrinksName(vector<string> & drinklist)
 
 int DatabaseIF::getAddress(string name, vector <int> & addr)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
     vector<string> nameholder;
     vector<string>::iterator iter;
@@ -93,6 +95,7 @@ int DatabaseIF::getAddress(string name, vector <int> & addr)
 
 bool DatabaseIF::checkName(int choice, string searchfor)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
 
     if (choice == DRINK) // Check på drink
@@ -137,6 +140,7 @@ bool DatabaseIF::checkName(int choice, string searchfor)
 
 int DatabaseIF::getIngredientsName(vector <string> & contents)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
     if(query.exec("SELECT * FROM Ingredienser"))
     {
@@ -154,6 +158,7 @@ int DatabaseIF::getIngredientsName(vector <string> & contents)
 
 int DatabaseIF::createDrink(Drink & inDrink)
 {
+    boost::mutex::scoped_lock(mtx);
     if (!checkName(DRINK,inDrink.name))
     {
         //Nedenstående burde være generisk
@@ -203,6 +208,7 @@ int DatabaseIF::createDrink(Drink & inDrink)
 
 int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
     if(query.exec("SELECT * FROM Drinks"))
     {
@@ -235,6 +241,7 @@ int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
 
 bool DatabaseIF::checkForUse(string name)
 {
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
 
     if(query.exec("SELECT * FROM Drinks"))
@@ -257,6 +264,7 @@ bool DatabaseIF::checkForUse(string name)
 
 bool DatabaseIF::checkContainerInUse(int addr){
 
+    boost::mutex::scoped_lock(mtx);
     QSqlQuery query;
 
     if(query.exec("SELECT * FROM Ingredienser"))
@@ -276,6 +284,7 @@ bool DatabaseIF::checkContainerInUse(int addr){
 
 int DatabaseIF::changeDrink(Drink & change)
 {
+    boost::mutex::scoped_lock(mtx);
    remove(change.name,DRINK);
    createDrink(change);
    return lastError;
@@ -283,6 +292,7 @@ int DatabaseIF::changeDrink(Drink & change)
 
 int DatabaseIF::remove(string toDelete, int choice)
 {
+
     string command;
     if (choice == DRINK){
         if (!checkName(DRINK,toDelete)){
@@ -306,6 +316,7 @@ int DatabaseIF::remove(string toDelete, int choice)
 
     QSqlQuery query;
 
+    boost::mutex::scoped_lock(mtx);
     query.prepare(QString::fromStdString(command));
     if(query.exec())
     {
@@ -324,6 +335,7 @@ int DatabaseIF::remove(string toDelete, int choice)
 int DatabaseIF::createIngredient(string name, int addr)
 {
     if(!checkName(INGREDIENT,name)){
+        boost::mutex::scoped_lock(mtx);
         QString bindQuery = "INSERT INTO Ingredienser ([Navn],[Addr]) VALUES(:name,:addr)";
         QSqlQuery query;
         query.prepare(bindQuery);
@@ -345,7 +357,9 @@ int DatabaseIF::createIngredient(string name, int addr)
 
 int DatabaseIF::getIngAdress(string getaddr, int & addr)
 {
+
     if (checkName(INGREDIENT,getaddr)){
+        boost::mutex::scoped_lock(mtx);
         QSqlQuery query;
         if(query.exec("SELECT * FROM Ingredienser")){
            while(query.next())
@@ -374,6 +388,7 @@ int DatabaseIF::changeIngrediensAddr(string ing, int newadd)
 
 int DatabaseIF::saveOrder(string name)
 {
+    boost::mutex::scoped_lock(mtx);
     QString bindQuery = "INSERT INTO Bestillinger ([Dag],[Måned],[År],[Navn]) VALUES(:day,:month,:year,:name)";
     QSqlQuery query;
     query.prepare(bindQuery);

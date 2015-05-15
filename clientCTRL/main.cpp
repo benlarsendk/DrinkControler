@@ -7,4 +7,5 @@ int main()
     AdminClient LOL(&erik);
 
     LOL.listen();
+    LOL.debug();
 }

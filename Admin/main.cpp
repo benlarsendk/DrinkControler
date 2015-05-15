@@ -11,6 +11,8 @@ int main()
    Controller tmp;
 
    Admin LOL(&tmp);
+   LOL.clean();
+   LOL.getErrorPT(22);
 
 }
 

@@ -21,7 +21,6 @@ SOURCES += main.cpp \
     src/adminclient.cpp
 
 HEADERS += \
-    client.h \
     src/client.h \
     src/adminclient.h \
     src/drink.h \
