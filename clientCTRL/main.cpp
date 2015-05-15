@@ -1,9 +1,10 @@
-#include <QCoreApplication>
-#include <src/adminclient.h>
-#include <src/guinf.h>
+#include "src/adminclient.h"
+#include "src/guinf.h"
 
 int main()
 {
     Controller erik;
     AdminClient LOL(&erik);
+
+    LOL.listen();
 }

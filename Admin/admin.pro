@@ -11,6 +11,8 @@ QT       -= gui
 TARGET = admin
 CONFIG   += console
 CONFIG   -= app_bundle
+LIBS    += -lboost_system
+LIBS    += -lboost_thread
 
 TEMPLATE = app
 
@@ -22,11 +24,6 @@ SOURCES += main.cpp \
     src/server.cpp
 
 HEADERS += \
-    dbif.h \
-    drink.h \
-    admin.h \
-    guidummy.h \
-    log.h \
     src/admin.h \
     src/dbif.h \
     src/drink.h \

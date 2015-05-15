@@ -1,4 +1,3 @@
-#include <QCoreApplication>
 #include "src/admin.h"
 #include "src/dbif.h"
 #include "src/log.h"

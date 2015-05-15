@@ -9,11 +9,6 @@ Admin::Admin(Controller *controller)
 }
 
 
-/*Admin::Admin()
-{
-    server = new Server();
-}*/
-
 Admin::~Admin(){
 
     delete server;
@@ -101,14 +96,14 @@ Drink Admin::getDrink(string name)
     }
 }
 
-void Admin::changeDrink(Drink drinktoedit)
+bool Admin::changeDrink(Drink drinktoedit)
 {
     if(db.changeDrink(drinktoedit)!=0){
         log.log("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        return false;
     }
     else{
-        server->send("TRUE");
+        return true;
     }
 }
 
@@ -139,14 +134,14 @@ bool Admin::checkContainer(int addr)
     else return true;
 }
 
-void Admin::createIngredient(string name, int addr)
+bool Admin::createIngredient(string name, int addr)
 {
     if(db.createIngredient(name,addr)!=0){
         log.log("DB ERROR: " + getErrorPT(db.getLastError()));
-        return;
+        return false;
     }
     else{
-        server->send("Ingredient created");
+        return true;
     }
 }
 
@@ -233,7 +228,7 @@ void Admin::decode(string encoded, vector <string> & decoded){
 
 }
 
-void Admin::parser(char * input){
+void Admin::parser(char * input, int mySock){
     if(input != NULL){
         string data(input);
         string cmd;
@@ -254,10 +249,10 @@ void Admin::parser(char * input){
         case CHECKNAMEDRINK:
             {
                 if(checkNameDrink(newData.at(0)) == true){
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
                 else{
-                    server->send("FALSE");
+                    server->send("FALSE",mySock);
                     }
                 break;
         }
@@ -270,7 +265,7 @@ void Admin::parser(char * input){
                     tosend.append(iter->second);
                     tosend += ":";
                 }
-                server->send(tosend);
+                server->send(tosend,mySock);
                 break;
 
             }
@@ -283,7 +278,7 @@ void Admin::parser(char * input){
                     tosend += *iter;
                     tosend += ":";
                 }
-                server->send(tosend);
+                server->send(tosend,mySock);
                 break;
             }
         case CREATEDRINK:
@@ -299,9 +294,9 @@ void Admin::parser(char * input){
                 newDrink.path = newData.at(12);
                 if (createDrink(newDrink))
                 {
-                   server->send("TRUE");
+                   server->send("TRUE",mySock);
                 }
-                else server->send("FALSE");
+                else server->send("FALSE",mySock);
 
                 break;
             }
@@ -314,7 +309,7 @@ void Admin::parser(char * input){
                     tosend += *iter;
                     tosend += ":";
                 }
-                server->send(tosend);
+                server->send(tosend,mySock);
                  break;
             }
 
@@ -332,7 +327,7 @@ void Admin::parser(char * input){
                 }
                 tosend += local.path;
                 tosend += ":";
-                server->send(tosend);
+                server->send(tosend,mySock);
                 break;
             }
 
@@ -348,19 +343,19 @@ void Admin::parser(char * input){
                     newDrink.path = newData.at(12);
                     if (createDrink(newDrink) == true)
                     {
-                        //server->send("TRUE");
+                        //server->send("TRUE",mySock);
 
                     }
-                    //else server->send("FALSE");
+                    //else server->send("FALSE",mySock);
                     break;
                 }
 
         case DELETEDRINK:
         {
             if (deleteDrink(newData.at(1))){
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
-            else server->send("FALSE");
+            else server->send("FALSE",mySock);
             break;
         }
 
@@ -369,9 +364,9 @@ void Admin::parser(char * input){
         {
             if (checkNameIngredient(newData.at(1)))
             {
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
-            else server->send("FALSE");
+            else server->send("FALSE",mySock);
 
             break;
         }
@@ -381,9 +376,9 @@ void Admin::parser(char * input){
             string par = newData.at(1);
 
             if (checkContainer(atoi(par.c_str()))){
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
-            else server->send("FALSE");
+            else server->send("FALSE",mySock);
 
             break;
         }
@@ -395,7 +390,9 @@ void Admin::parser(char * input){
             string addr = newData.at(2);
             int rAddr = atoi(addr.c_str());
 
-            createIngredient(name,rAddr);
+            if(createIngredient(name,rAddr)){
+                //return true;
+            }
             break;
         }
         case GETINGREDIENTADDR:    
@@ -404,7 +401,7 @@ void Admin::parser(char * input){
             string tmp;
             tmp += addr;
            // string tmp = std::to_string(addr);
-            server->send(tmp);
+            server->send(tmp,mySock);
         }
             //
             break;
@@ -414,42 +411,48 @@ void Admin::parser(char * input){
             string addr = newData.at(2);
             int rAddr = atoi(addr.c_str());
             if(changeIngredientAddr(name,rAddr)){
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
-            else server->send("FALSE");
+            else server->send("FALSE",mySock);
             break;
         }
 
         case DELETEINGREDIENT:
         {
             if (deleteIngredient(newData.at(1))){
-                server->send("TRUE");
+                server->send("TRUE",mySock);
             }
-            else server->send("FALSE");
+            else server->send("FALSE",mySock);
             break;
         }
 
         case CLEAN:
         {
             clean();
-            server->send("WATER");
+            server->send("WATER",mySock);
             break;
         }
         case CLEAN_WATER:
         {
 
             clean_water();
-            server->send("ADD_NORMAL");
+            server->send("ADD_NORMAL",mySock);
         }
 
         case GETERROR:
         {
             string tmp = newData.at(1);
-            server->send(getErrorPT(atoi(tmp.c_str())));
+            server->send(getErrorPT(atoi(tmp.c_str())),mySock);
 
         }
+        case 99:
+        {
+            string tmp = "Debug: Socket# " + mySock;
+            server->send(tmp,mySock);
+            break;
+        }
         default:
-            server->send("WHATTHEFUCK!?!?!");
+            server->send("WHATTHEFUCK!?!?!",mySock);
             break;
         }
 

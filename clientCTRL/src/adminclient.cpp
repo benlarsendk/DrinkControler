@@ -1,4 +1,4 @@
-#include <src/adminclient.h>
+#include "adminclient.h"
 #include <stdlib.h>
 
 
@@ -269,6 +269,22 @@ std::map<string,string> AdminClient::checkStock()
     }
 
     return stock;
+}
+
+void AdminClient::debug()
+{
+    client->send("99");
+    string in = client->recieve();
+
+    std::cout << in << std::endl;
+}
+
+void AdminClient::listen()
+{
+    for(;;){
+        string in = client->recieve();
+        std::cout << in << std::endl;
+    }
 }
 
 Drink AdminClient::getDrink(string name)

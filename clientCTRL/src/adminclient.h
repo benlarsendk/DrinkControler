@@ -2,9 +2,9 @@
 #define ADMINCLIENT
 
 #include <iostream>
-#include <src/client.h>
-#include <src/drink.h>
-#include <src/guinf.h>
+#include "client.h"
+#include "drink.h"
+#include "guinf.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -43,6 +43,8 @@ public:
     ~AdminClient();
     void changeDrink(Drink drinktoedit);
     void clean();
+    void debug();
+    void listen();
     void clean_water();
     void getIngredientsName(vector <string> & currentIngredients);
     bool deleteDrink(string todelte);
