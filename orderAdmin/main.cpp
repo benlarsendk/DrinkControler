@@ -1,8 +1,13 @@
-#include <QCoreApplication>
+#include <iostream>
+#include "src/orderadmin.h"
 
-int main(int argc, char *argv[])
+class Controller;
+
+int main()
 {
-    QCoreApplication a(argc, argv);
+    Controller* test = new Controller;
 
-    return a.exec();
+    orderAdmin lol(test);
+
+
 }

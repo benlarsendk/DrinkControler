@@ -5,8 +5,8 @@
 #include <QtDebug>
 #include <QFileInfo>
 #include <vector>
-#include "src/drink.h"
-#include "src/log.h"
+#include "drink.h"
+#include "log.h"
 #include <iostream>
 #include <pthread.h>
 #include <boost/thread.hpp>

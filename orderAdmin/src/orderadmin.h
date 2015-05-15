@@ -2,11 +2,11 @@
 #define ORDERADMIN_H
 #include <iostream>
 #include <string>
-#include "src/dbif.h"
+#include "dbif.h"
 #include <vector>
 #include <map>
-#include "src/drink.h"
-#include "src/log.h"
+#include "drink.h"
+#include "log.h"
 #include <queue>
 #include <boost/thread.hpp>
 #include "guinf.h"

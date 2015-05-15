@@ -18,13 +18,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    orderadmin.cpp \
-    dbif.cpp \
-    log.cpp
+    src/orderadmin.cpp \
+    src/dbif.cpp \
+    src/log.cpp \
+    main.cpp
 
 HEADERS += \
-    orderadmin.h \
-    guinf.h \
-    log.h \
-    drink.h \
-    dbif.h
+    src/orderadmin.h \
+    src/guinf.h \
+    src/log.h \
+    src/drink.h \
+    src/dbif.h
