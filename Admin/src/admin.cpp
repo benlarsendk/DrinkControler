@@ -13,6 +13,7 @@ Admin::~Admin(){
 
     delete server;
 }
+
 bool Admin::checkNameDrink(string namecheck)
 {
     if(db.checkName(DRINK,namecheck)){
