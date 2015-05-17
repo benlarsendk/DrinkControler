@@ -10,6 +10,7 @@ Client::Client()
 
 void Client::send(std::string dataIn){
 
+    std::cout << "Trying to send: " << dataIn << std::endl;
 
     char data[256];
     strcpy(data,dataIn.c_str());

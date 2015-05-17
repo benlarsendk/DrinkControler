@@ -1,13 +1,15 @@
 #ifndef DBIF
 #define DBIF
-
-#include <QtSql>
-#include <QtDebug>
-#include <QFileInfo>
+//#include <QtCore/QCoreApplication>
+//#include <QtSql>
+//#include <QtDebug>
+//#include <QFileInfo>
+#include <sqlite3.h>
 #include <vector>
-#include "drink.h"
-#include "log.h"
+#include "src/drink.h"
+#include "src/log.h"
 #include <iostream>
+#include <sstream>
 #include <pthread.h>
 #include <boost/thread.hpp>
 #include <sstream>
@@ -36,7 +38,7 @@ public:
     DatabaseIF();
     ~DatabaseIF();
     int getLastError();
-
+    vector<vector<string> > query(string query);
     int getDrinksName(vector<string> &);
     int getAddress(string, vector <int> &);
     bool checkName(int, string);
@@ -55,7 +57,8 @@ public:
 
 
 private:
-    QSqlDatabase db;
+    //QSqlDatabase db;
+    sqlite3 *db;
     Logger log;
     boost::mutex mtx;
     int lastError;

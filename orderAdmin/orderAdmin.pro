@@ -13,6 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 LIBS    += -lboost_system
 LIBS    += -lboost_thread
+LIBS    += -lsqlite3
 
 TEMPLATE = app
 

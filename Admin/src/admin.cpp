@@ -448,7 +448,7 @@ void Admin::parser(char * input, int mySock){
         }
         case 99:
         {
-            string tmp = "Debug: Socket# " + mySock;
+            string tmp = "Debugging12345";
             server->send(tmp,mySock);
             break;
         }
