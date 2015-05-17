@@ -11,7 +11,7 @@ Logger* Logger::instance(){
 
 Logger::Logger()
 {
-   const char * pluspath = ("/home/deblab/Dropbox/IHA/3SEM/PRJ3/LOG/" + getTime(0)).c_str();
+   const char * pluspath = ("/home/root/" + getTime(0)).c_str();
    logfile.open(pluspath, fstream::app);
 }
 

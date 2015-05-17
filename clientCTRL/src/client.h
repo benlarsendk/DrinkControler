@@ -1,5 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,7 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-
+#include <string.h>
 
 
 class Client
@@ -17,7 +18,7 @@ class Client
 public:
     Client();
     void send(std::string data);
-    void error(char* err);
+    void error(std::string err);
     std::string recieve();
     ~Client();
 private:

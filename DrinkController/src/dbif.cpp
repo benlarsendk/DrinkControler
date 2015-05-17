@@ -6,6 +6,7 @@ using namespace std;
 
 DatabaseIF::DatabaseIF()
 {
+    Logger::instance()->log("DEBUG: DBIF CTOR loaded.");
       char* dbname = "/home/root/drinksdatabase.db";
   //  char* dbname = "/home/deblab/Dropbox/IHA/3SEM/PRJ3/Controllers_THIS_IS_WORKING_MED_DBIF_OSV/admin/DrinkController/database/drinksdatabase.db";
     if(sqlite3_open(dbname,&db) == SQLITE_OK){

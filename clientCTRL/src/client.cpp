@@ -55,6 +55,6 @@ Client::~Client()
     close(sockfd);
 }
 
-void Client::error(char *err){
+void Client::error(std::string err){
     std::cout << "Error: " << err << std::endl;
 }
