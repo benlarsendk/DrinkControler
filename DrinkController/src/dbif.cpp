@@ -10,8 +10,8 @@ DatabaseIF::DatabaseIF()
   //  char* dbname = "/home/deblab/Dropbox/IHA/3SEM/PRJ3/Controllers_THIS_IS_WORKING_MED_DBIF_OSV/admin/DrinkController/database/drinksdatabase.db";
     if(sqlite3_open(dbname,&db) == SQLITE_OK){
         lastError = NO_ERRORS;
-        cout << "Database loaded." << endl;
-        Logger::instance()->log("Database opened.");
+        //cout << "Database loaded." << endl;
+        Logger::instance()->log("Database loaded.");
     }
     else{
         lastError = DB_FAILED_TO_OPEN;

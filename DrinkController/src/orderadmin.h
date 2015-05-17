@@ -16,7 +16,7 @@ using namespace std;
 class orderAdmin
 {
 public:
-    orderAdmin(Controller*);
+    orderAdmin(Controller*, DatabaseIF*);
     ~orderAdmin();
     void getDrinksName();
     void orderDrinks(vector<string> drinks);
@@ -29,7 +29,7 @@ private:
     pthread_cond_t bell;
     void handleOrder();
     boost::thread* worker;
-    DatabaseIF db;
+    DatabaseIF* db;
 };
 
 #endif // ORDERADMIN_H

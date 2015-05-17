@@ -7,9 +7,10 @@
 #include <fcntl.h>
 #include <map>
 
-orderAdmin::orderAdmin(Controller* inGui)
+orderAdmin::orderAdmin(Controller* inGui, DatabaseIF* dbI)
 {
     GUINF = inGui;
+    db = dbI;
     mtx = PTHREAD_MUTEX_INITIALIZER;
     bell = PTHREAD_COND_INITIALIZER;
     worker = new boost::thread(&orderAdmin::handleOrder, this);
@@ -25,8 +26,8 @@ orderAdmin::~orderAdmin()
 void orderAdmin::getDrinksName()
 {
     vector<string> drinks;
-    if(db.getDrinksName(drinks)!=0){
-        GUINF->print("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getDrinksName(drinks)!=0){
+        GUINF->print("DB ERROR: " + getErrorPT(db->getLastError()));
         return;
     }
     else{
@@ -69,12 +70,12 @@ void orderAdmin::handleOrder()
 
                 Drink current;
                 int count = 0;
-                //db.getDrink(*i,current);
+                //db->getDrink(*i,current);
 
-                if(db.getDrink(*i,current) == 0){
+                if(db->getDrink(*i,current) == 0){
 
                     vector<int> ingredients;
-                    db.getAddress(current.name, ingredients);
+                    db->getAddress(current.name, ingredients);
 
                     for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
                         u_int8_t ing = *x;
@@ -89,10 +90,10 @@ void orderAdmin::handleOrder()
 
                     Logger::instance()->log("Ingredient: " + current.name + " has been written to PSoC");
                     GUINF->print("Drink " + current.name + " Has been ordered");
-                    db.saveOrder(current.name);
+                    db->saveOrder(current.name);
                 }
                 else{
-                    GUINF->print("DB ERROR: " +getErrorPT(db.getLastError()));
+                    GUINF->print("DB ERROR: " +getErrorPT(db->getLastError()));
 
                 }
             }
@@ -136,8 +137,8 @@ map<string,string> orderAdmin::checkStock()
 {
     vector<string> ings;
 
-    if(db.getIngredientsName(ings)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getIngredientsName(ings)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         map<string,string> error;
         return error;
     }

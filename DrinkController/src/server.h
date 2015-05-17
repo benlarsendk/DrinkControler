@@ -1,7 +1,7 @@
 #ifndef SERVER
 #define SERVER
 
-#include "src/admin.h"
+#include "admin.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>

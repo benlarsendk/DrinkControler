@@ -6,6 +6,7 @@
 #include <string>
 #include <time.h>
 #include <ctime>
+#include <boost/thread.hpp>
 
 using namespace std;
 
@@ -22,6 +23,8 @@ private:
     Logger();            //Singleton
     static Logger* instancePtr_;
     ofstream logfile;
+    boost::mutex mtx_;
+
 };
 
 

@@ -22,6 +22,7 @@ Logger::~Logger()
 }
 void Logger::log(string data)
 {
+    boost::mutex::scoped_lock(mtx_);
     logfile << getTime(1) << ":\t" << data << "\n";
     flush(logfile);
 

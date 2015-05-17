@@ -2,6 +2,7 @@
 #define GUINFA
 
 #include <vector>
+#include "drink.h"
 #include <iostream>
 #include <string.h>
 

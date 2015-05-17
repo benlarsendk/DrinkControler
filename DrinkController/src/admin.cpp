@@ -1,8 +1,9 @@
 #include "admin.h"
 
 
-Admin::Admin(Controller *controller)
+Admin::Admin(Controller *controller, DatabaseIF* dbI)
 {
+   db = dbI;
    GUINF = controller;
    server = new Server(this);
    server->start();
@@ -16,7 +17,7 @@ Admin::~Admin(){
 
 bool Admin::checkNameDrink(string namecheck)
 {
-    if(db.checkName(DRINK,namecheck)){
+    if(db->checkName(DRINK,namecheck)){
         return false;
     }
     else{
@@ -27,9 +28,9 @@ bool Admin::checkNameDrink(string namecheck)
 
 void Admin::getIngredientsName(vector <string> & currentIngredients)
 {
-    if(db.getIngredientsName(currentIngredients)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
-        currentIngredients.push_back("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getIngredientsName(currentIngredients)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
+        currentIngredients.push_back("DB ERROR: " + getErrorPT(db->getLastError()));
         return;
     }
 }
@@ -37,8 +38,8 @@ void Admin::getIngredientsName(vector <string> & currentIngredients)
 
 bool Admin::createDrink(Drink newDrink)
 {
-    if(db.createDrink(newDrink)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->createDrink(newDrink)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return false;
     }
     else return true;
@@ -47,8 +48,8 @@ bool Admin::createDrink(Drink newDrink)
 vector<string> Admin::getDrinksName()
 {
     vector<string> drinks;
-    if(db.getDrinksName(drinks)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getDrinksName(drinks)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return drinks;
     }
     else{
@@ -60,8 +61,8 @@ map<string,string> Admin::checkStock()
 {
     vector<string> ings;
 
-    if(db.getIngredientsName(ings)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getIngredientsName(ings)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         map<string,string> error;
         return error;
     }
@@ -88,8 +89,8 @@ map<string,string> Admin::checkStock()
 Drink Admin::getDrink(string name)
 {
     Drink drink;
-    if(db.getDrink(name,drink)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getDrink(name,drink)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return drink;
     }
     else{
@@ -99,8 +100,8 @@ Drink Admin::getDrink(string name)
 
 bool Admin::changeDrink(Drink drinktoedit)
 {
-    if(db.changeDrink(drinktoedit)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->changeDrink(drinktoedit)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return false;
     }
     else{
@@ -111,8 +112,8 @@ bool Admin::changeDrink(Drink drinktoedit)
 
 bool Admin::deleteDrink(string todelete)
 {
-       if(db.remove(todelete,DRINK)!=0){
-           Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+       if(db->remove(todelete,DRINK)!=0){
+           Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
            return false;
        }
        else{
@@ -124,12 +125,12 @@ bool Admin::deleteDrink(string todelete)
 
 bool Admin::checkNameIngredient(string name)
 {
-    return db.checkName(INGREDIENT,name);
+    return db->checkName(INGREDIENT,name);
 }
 
 bool Admin::checkContainer(int addr)
 {
-    if(db.checkContainerInUse(addr)){ //return true hvis findes
+    if(db->checkContainerInUse(addr)){ //return true hvis findes
         return false;
     }
     else return true;
@@ -137,8 +138,8 @@ bool Admin::checkContainer(int addr)
 
 bool Admin::createIngredient(string name, int addr)
 {
-    if(db.createIngredient(name,addr)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->createIngredient(name,addr)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return false;
     }
     else{
@@ -149,8 +150,8 @@ bool Admin::createIngredient(string name, int addr)
 int Admin::getIngredientAddress(string ingredient)
 {
     int addr;
-    if(db.getIngAdress(ingredient,addr)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->getIngAdress(ingredient,addr)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return addr;
     }
     else{
@@ -161,8 +162,8 @@ int Admin::getIngredientAddress(string ingredient)
 
 bool Admin::changeIngredientAddr(string name,int newAddr)
 {
-    if(db.changeIngrediensAddr(name,newAddr)!=0){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->changeIngrediensAddr(name,newAddr)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return false;
     }
     else{
@@ -172,13 +173,13 @@ bool Admin::changeIngredientAddr(string name,int newAddr)
 
 bool Admin::deleteIngredient(string todelte)
 {
-    if(db.checkForUse(todelte)){
-        Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+    if(db->checkForUse(todelte)){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return false;
     }
     else{
-        if(db.remove(todelte,INGREDIENT)!=0){
-            Logger::instance()->log("DB ERROR: " + getErrorPT(db.getLastError()));
+        if(db->remove(todelte,INGREDIENT)!=0){
+            Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
             return false;
         }
         else{
@@ -218,7 +219,7 @@ void Admin::clean_water(){
 void Admin::decode(string encoded, vector <string> & decoded){
 
     string tmp;
-    for (int i = 3; i < encoded.length(); i++){
+    for (unsigned int i = 3; i < encoded.length(); i++){
 
         if (encoded[i] == ':'){
             decoded.push_back(tmp);

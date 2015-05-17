@@ -9,11 +9,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "src/drink.h"
-#include "src/dbif.h"
-#include "src/log.h"
-#include "src/server.h"
-#include "src/guinf.h"
+#include "drink.h"
+#include "dbif.h"
+#include "log.h"
+#include "server.h"
+#include "guinf.h"
 class Server;
 
 using namespace std;
@@ -41,7 +41,7 @@ enum
 class Admin
 {
 public:
-    Admin(Controller*);
+    Admin(Controller*, DatabaseIF*);
     ~Admin();
     bool checkNameDrink(string namecheck);
     void decode(string, vector<string> &);
@@ -64,7 +64,7 @@ public:
     string getErrorPT(int);
 
 private:
-    DatabaseIF db;
+    DatabaseIF* db;
     Controller* GUINF;
     Server* server;
 

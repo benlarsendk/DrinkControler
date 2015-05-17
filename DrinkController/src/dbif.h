@@ -6,8 +6,8 @@
 //#include <QFileInfo>
 #include <sqlite3.h>
 #include <vector>
-#include "src/drink.h"
-#include "src/log.h"
+#include "drink.h"
+#include "log.h"
 #include <iostream>
 #include <sstream>
 #include <pthread.h>
