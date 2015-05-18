@@ -287,13 +287,13 @@ void Admin::parser(char * input, int mySock){
             {
 
                 Drink newDrink;
-                newDrink.name = newData.at(1);
+                newDrink.name = newData.at(0);
                 for (int i = 0; i < 5; i++){
-                    newDrink.content[i].name = newData.at(i+2);
-                    string amt = newData.at(i+3);
+                    newDrink.content[i].name = newData.at(i+1);
+                    string amt = newData.at(i+2);
                     newDrink.content[i].amount = atoi(amt.c_str());
                 }
-                newDrink.path = newData.at(12);
+               // newDrink.path = newData.at(12);
                 if (createDrink(newDrink))
                 {
                    server->send("TRUE",mySock);
