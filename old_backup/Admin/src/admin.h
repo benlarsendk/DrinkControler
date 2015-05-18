@@ -43,7 +43,6 @@ class Admin
 public:
     Admin(Controller*);
     ~Admin();
-    //Admin(Controller*);
     bool checkNameDrink(string namecheck);
     void decode(string, vector<string> &);
     map<string,string> checkStock();
@@ -51,26 +50,24 @@ public:
     bool createDrink(Drink newDrink);
     vector<string> getDrinksName();
     Drink getDrink(string name);
-    void changeDrink(Drink drinktoedit);
+    bool changeDrink(Drink drinktoedit);
     bool deleteDrink(string todelte);
     bool checkNameIngredient(string name);
     bool checkContainer(int addr);
-    void createIngredient(string name, int addr);
+    bool createIngredient(string name, int addr);
     int getIngredientAddress(string ingredient);
     bool changeIngredientAddr(string name,int newAddr);
     bool deleteIngredient(string todelte);
     void clean();
     void clean_water();
-    void parser(char*);
+    void parser(char*, int);
     string getErrorPT(int);
 
 private:
     DatabaseIF db;
     Logger log;
-    bool confFlag;
     Controller* GUINF;
     Server* server;
-    //Controller *GUINF;
 
 };
 

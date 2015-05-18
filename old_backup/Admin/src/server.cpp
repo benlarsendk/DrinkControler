@@ -37,6 +37,24 @@ Server::Server(Admin* inAdmin){
     }
 }
 
+
+void Server::connectionHandler(void * socket_desc){
+
+    int sock = *(int*)socket_desc;
+    int n;
+    char myBuff[512];
+
+    while( (n = recv(sock , myBuff , 512 , 0)) > 0 )
+        {
+             if(strcmp(buffer_,"EXIT")){
+                 admin->parser(myBuff, sock);
+                }
+        }
+
+    delete socket_desc;
+}
+
+
 void Server::start(){
 
     listen(sockfd_,5); // Lyt for incomming forbindelser. Den tager filedescriptoor og størrelsen
@@ -48,29 +66,44 @@ void Server::start(){
      * med adressen til klienten. Sidste argument er bare størrelsen på strukturen*/
     std::cout << "Server will start listening now.." << std::endl;
 
-    for(;;)
-    {
+    //for(;;)
+    //{
 
-        newsockfd_ = accept(sockfd_, (struct sockaddr *) &cli_addr, &clien_);
+    int *new_sock_;
+
+    while(newsockfd_ = accept(sockfd_, (struct sockaddr *) &cli_addr, &clien_))
+    {
         if (newsockfd_ < 0){
           error("Couldn't accept incomming connection");
         }
 
+        // Forbindelse accepteret
+
+        new_sock_ = new int;
+        *new_sock_ = newsockfd_;
+        boost::thread(&Server::connectionHandler, this, new_sock_);
+        //Join?
+
+    }
+
+/*
         /********** Nu er der kommet forbindelse ***********/
 
-        bzero(buffer_,256); //Sætter bufferen til 0.
+
+
+ /*       bzero(buffer_,256); //Sætter bufferen til 0.
         int n = 0;
         n = read(newsockfd_,buffer_,255); // Read!
         if (n < 0){
           error("Couln't read from scoket");
         }
-        /*Fortsætter med at læse indtil den får exit*/
+
         if(strcmp(buffer_,"EXIT")){
             admin->parser(buffer_);
         }
         else break;
 
-    }
+    //}*/
 }
 
 Server::~Server()
@@ -80,14 +113,16 @@ Server::~Server()
     //delete admin;
 }
 
-void Server::send(string in){
-    char data[256];
+void Server::send(string in, int mysockfd){
+    char data[512];
 
     strcpy(data, in.c_str());
-    int n;
+    int n = 0;
 
-    n = write(newsockfd_,data,strlen(data));
+    n = write(mysockfd,data,strlen(data));
          if (n < 0) error("ERROR writing to socket");
+
+    std::cout << "Server sent: " << data << std::endl;
 }
 
 void Server::error(char* error){
