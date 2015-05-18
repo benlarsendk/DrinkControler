@@ -22,15 +22,13 @@ public:
     void orderDrinks(vector<string> drinks);
     map<string,string> checkStock();
     string getErrorPT(int);
+    boost::thread* worker;
 private:
     Controller* GUINF;
     queue<vector<string> > orders; // New
-    //pthread_mutex_t mtx;
-    //pthread_cond_t bell;
     boost::mutex mtx;
     boost::condition_variable bell;
     void handleOrder();
-    boost::thread* worker;
     DatabaseIF* db;
 };
 

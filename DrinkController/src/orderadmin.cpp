@@ -21,6 +21,7 @@ orderAdmin::~orderAdmin()
 {
     delete GUINF;
     delete worker;
+
 }
 
 map<string,string> orderAdmin::getDrinksName()
