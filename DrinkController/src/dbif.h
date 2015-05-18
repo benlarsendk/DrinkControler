@@ -39,7 +39,7 @@ public:
     ~DatabaseIF();
     int getLastError();
     vector<vector<string> > query(string query);
-    int getDrinksName(vector<string> &);
+    int getDrinksName(map<string,string> &);
     int getAddress(string, vector <int> &);
     bool checkName(int, string);
     int getIngredientsName(vector <string>&);

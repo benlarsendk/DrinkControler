@@ -23,15 +23,15 @@ orderAdmin::~orderAdmin()
     delete worker;
 }
 
-void orderAdmin::getDrinksName()
+map<string,string> orderAdmin::getDrinksName()
 {
-    vector<string> drinks;
+    map<string,string> drinks;
     if(db->getDrinksName(drinks)!=0){
         GUINF->print("DB ERROR: " + getErrorPT(db->getLastError()));
-        return;
+        return drinks;
     }
     else{
-        GUINF->printDrinks(drinks);
+        return drinks;
     }
 }
 

@@ -48,7 +48,7 @@ public:
     map<string,string> checkStock();
     void getIngredientsName(vector <string> & currentIngredients);
     bool createDrink(Drink newDrink);
-    vector<string> getDrinksName();
+    map<string,string> getDrinksName();
     Drink getDrink(string name);
     bool changeDrink(Drink drinktoedit);
     bool deleteDrink(string todelte);

@@ -26,6 +26,15 @@ int main()
     cout << "[+] Creating order-admin" << endl;
     orderAdmin * oa = new orderAdmin(&me,ddb);
 
+    map<string,string> drinks = oa->getDrinksName();
+
+    for(map<string,string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
+        cout << "Name: " << iter->first << cout << "\nPath: " << iter->second << endl << endl;
+    }
+
+
+    /*
+
     //oa->getDrinksName();
 
     map<string,string> stock;
@@ -40,6 +49,6 @@ int main()
     drinks.push_back("Kaffe");
         oa->orderDrinks(drinks);
 
-    //adminT.join();
+    //adminT.join();*/
 
 }

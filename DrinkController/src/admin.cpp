@@ -45,10 +45,11 @@ bool Admin::createDrink(Drink newDrink)
     else return true;
 }
 
-vector<string> Admin::getDrinksName()
+map<string,string> Admin::getDrinksName()
 {
-    vector<string> drinks;
-    if(db->getDrinksName(drinks)!=0){
+    map<string,string> drinks;
+    db->getDrinksName(drinks);
+    if(db->getLastError()!=0){
         Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
         return drinks;
     }
@@ -305,6 +306,7 @@ void Admin::parser(char * input, int mySock){
 
         case GETDRINKSNAME:
             {
+            /*
                 vector<string> drinks = getDrinksName();
 
                 for (vector<string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
@@ -312,7 +314,7 @@ void Admin::parser(char * input, int mySock){
                     tosend += ":";
                 }
                 server->send(tosend,mySock);
-                 break;
+             */    break;
             }
 
         case GETDRINK:

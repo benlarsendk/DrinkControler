@@ -88,15 +88,18 @@ int DatabaseIF::getLastError()
 }
 
 
-int DatabaseIF::getDrinksName(vector<string> & drinklist)
+int DatabaseIF::getDrinksName(map<string,string> & drinklist)
 {
     vector<vector<string> > results;
     results = query("SELECT * FROM Drinks");
 
     for(vector<vector<string> >::iterator iter = results.begin(); iter != results.end(); iter++){
         vector<string> row = *iter;
-        drinklist.push_back(row.at(0));
+        string name = row.at(0);
+        string path = row.at(11);
+        drinklist[name] = path; // path
         }
+
     return lastError;
 }
 
