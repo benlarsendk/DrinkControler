@@ -11,8 +11,8 @@ orderAdmin::orderAdmin(Controller* inGui, DatabaseIF* dbI)
 {
     GUINF = inGui;
     db = dbI;
-    mtx = PTHREAD_MUTEX_INITIALIZER;
-    bell = PTHREAD_COND_INITIALIZER;
+    //mtx = PTHREAD_MUTEX_INITIALIZER;
+    //bell = PTHREAD_COND_INITIALIZER;
     worker = new boost::thread(&orderAdmin::handleOrder, this);
 
 }
@@ -39,7 +39,7 @@ void orderAdmin::orderDrinks(vector<string> drinks){
 
     if(GUINF->confirmOrder()){
         orders.push(drinks);
-        pthread_cond_signal(&bell);
+        bell.notify_all();
         }
 
     else{
@@ -50,18 +50,26 @@ void orderAdmin::orderDrinks(vector<string> drinks){
 
 void orderAdmin::handleOrder()
 {
-    pthread_mutex_lock(&mtx);
+    boost::mutex::scoped_lock scoped_lock(mtx);
     for(;;)
     {
-
+        cout << "ho open" << endl;
         while(orders.empty())
-            pthread_cond_wait(&bell,&mtx);
+            bell.wait(scoped_lock);
+
+        cout << "got signal" << endl;
+
+
+        if (orders.empty())
+        {
+            cout << "ORDERS EMPTY!!" << endl;
+        }
 
         vector<string> drinks = orders.front();
         orders.pop();
+        cout << "popped crap" << endl;
 
 
-        // Lock mutex and shti
         int fd = open("/dev/spidev", O_RDWR);
         for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
 
@@ -70,16 +78,18 @@ void orderAdmin::handleOrder()
 
                 Drink current;
                 int count = 0;
-                //db->getDrink(*i,current);
 
                 if(db->getDrink(*i,current) == 0){
 
                     vector<int> ingredients;
                     db->getAddress(current.name, ingredients);
+                    cout << "Got adresses and shit" << endl;
+
 
                     for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
                         u_int8_t ing = *x;
                         u_int8_t amt = current.content[count].amount;
+                        cout << "Just ordered " << *x << "with amt: " << amt << endl;
 
 
                         write(fd,&ing,8); // er vi sikker på at det er adressen?
@@ -93,6 +103,7 @@ void orderAdmin::handleOrder()
                     db->saveOrder(current.name);
                 }
                 else{
+                    cout << "Error " << endl;
                     GUINF->print("DB ERROR: " +getErrorPT(db->getLastError()));
 
                 }

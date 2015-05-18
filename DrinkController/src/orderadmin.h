@@ -25,8 +25,10 @@ public:
 private:
     Controller* GUINF;
     queue<vector<string> > orders; // New
-    pthread_mutex_t mtx;
-    pthread_cond_t bell;
+    //pthread_mutex_t mtx;
+    //pthread_cond_t bell;
+    boost::mutex mtx;
+    boost::condition_variable bell;
     void handleOrder();
     boost::thread* worker;
     DatabaseIF* db;

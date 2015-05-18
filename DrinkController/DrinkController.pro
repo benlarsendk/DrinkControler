@@ -22,7 +22,6 @@ SOURCES += main.cpp \
     src/server.cpp \
     src/orderadmin.cpp \
     src/log.cpp \
-    src/gui.cpp \
     src/dbif.cpp \
     src/admin.cpp
 
