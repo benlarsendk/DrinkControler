@@ -45,9 +45,9 @@ bool Admin::createDrink(Drink newDrink)
     else return true;
 }
 
-map<string,string> Admin::getDrinksName()
+vector<string> Admin::getDrinksName()
 {
-    map<string,string> drinks;
+    vector<string> drinks;
     db->getDrinksName(drinks);
     if(db->getLastError()!=0){
         Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));

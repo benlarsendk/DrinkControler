@@ -18,7 +18,7 @@ class orderAdmin
 public:
     orderAdmin(Controller*, DatabaseIF*);
     ~orderAdmin();
-    map<string,string> getDrinksName();
+    vector<string> getDrinksName();
     void orderDrinks(vector<string> drinks);
     map<string,string> checkStock();
     string getErrorPT(int);

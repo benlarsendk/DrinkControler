@@ -24,9 +24,9 @@ orderAdmin::~orderAdmin()
 
 }
 
-map<string,string> orderAdmin::getDrinksName()
+vector<string> orderAdmin::getDrinksName()
 {
-    map<string,string> drinks;
+    vector<string> drinks;
     if(db->getDrinksName(drinks)!=0){
         GUINF->print("DB ERROR: " + getErrorPT(db->getLastError()));
         return drinks;
@@ -58,18 +58,8 @@ void orderAdmin::handleOrder()
         while(orders.empty())
             bell.wait(scoped_lock);
 
-        cout << "got signal" << endl;
-
-
-        if (orders.empty())
-        {
-            cout << "ORDERS EMPTY!!" << endl;
-        }
-
         vector<string> drinks = orders.front();
         orders.pop();
-        cout << "popped crap" << endl;
-
 
         int fd = open("/dev/spidev", O_RDWR);
         for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
@@ -84,19 +74,14 @@ void orderAdmin::handleOrder()
 
                     vector<int> ingredients;
                     db->getAddress(current.name, ingredients);
-                    cout << "Got adresses and shit" << endl;
-
 
                     for (vector<int>::iterator x = ingredients.begin(); x < ingredients.end(); x++){
                         u_int8_t ing = *x;
                         u_int8_t amt = current.content[count].amount;
-                        cout << "Just ordered " << *x << "with amt: " << amt << endl;
 
-
-                        write(fd,&ing,8); // er vi sikker på at det er adressen?
+                        write(fd,&ing,8);
                         write(fd,&amt,8);
                         count++;
-
                     }
 
                     Logger::instance()->log("Ingredient: " + current.name + " has been written to PSoC");
@@ -106,12 +91,9 @@ void orderAdmin::handleOrder()
                 else{
                     cout << "Error " << endl;
                     GUINF->print("DB ERROR: " +getErrorPT(db->getLastError()));
-
                 }
             }
-
     }
-
 }
 
 string orderAdmin::getErrorPT(int error)

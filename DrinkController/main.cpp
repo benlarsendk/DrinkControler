@@ -25,14 +25,15 @@ int main()
 
     cout << "[+] Creating order-admin" << endl;
     orderAdmin * oa = new orderAdmin(&me,ddb);
-/*
-    map<string,string> drinks = oa->getDrinksName();
+    vector<string> drinks = oa->getDrinksName();
 
-    for(map<string,string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
-        cout << "Name: " << iter->first << cout << "\nPath: " << iter->second << endl << endl;
+    for (vector<string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
+        cout << *iter << endl;
     }
 
 
+
+/*
 
     //oa->getDrinksName();
 
@@ -40,15 +41,9 @@ int main()
     stock = oa->checkStock();
 
     for (map<string,string>::iterator iter = stock.begin(); iter != stock.end(); iter++){
-       // cout << "Name: " << iter->first << "\nStock: " << iter->second << endl;
+        cout << "Name: " << iter->first << "\nStock: " << iter->second << endl;
     }
 */
-
-    vector<string> drinks;
-    drinks.push_back("Vodka og Redbull");
-    drinks.push_back("Kaffe");
-    oa->orderDrinks(drinks);
-
     oa->worker->join();
 
 

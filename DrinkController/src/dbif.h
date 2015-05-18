@@ -1,11 +1,8 @@
 #ifndef DBIF
 #define DBIF
-//#include <QtCore/QCoreApplication>
-//#include <QtSql>
-//#include <QtDebug>
-//#include <QFileInfo>
 #include <sqlite3.h>
 #include <vector>
+#include <map>
 #include "drink.h"
 #include "log.h"
 #include <iostream>
@@ -39,7 +36,7 @@ public:
     ~DatabaseIF();
     int getLastError();
     vector<vector<string> > query(string query);
-    int getDrinksName(map<string,string> &);
+    int getDrinksName(vector<string> &);
     int getAddress(string, vector <int> &);
     bool checkName(int, string);
     int getIngredientsName(vector <string>&);

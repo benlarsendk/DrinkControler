@@ -29,6 +29,7 @@ public:
         content[i].name = "NOT_DECLARED";
         content[i].amount = 0;
     }
+
     name = "NOT_DECLARED";
     path = "STD/PATH/TO/TMP.png";
 
