@@ -126,6 +126,17 @@ string orderAdmin::getErrorPT(int error)
     }
 }
 
+Drink orderAdmin::getDrink(string name)
+{
+    Drink drink;
+    if(db->getDrink(name,drink)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
+        return drink;
+    }
+    else{
+        return drink;
+    }
+}
 
 map<string,string> orderAdmin::checkStock()
 {

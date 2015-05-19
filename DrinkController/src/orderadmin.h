@@ -19,6 +19,7 @@ public:
     orderAdmin(Controller*, DatabaseIF*);
     ~orderAdmin();
     vector<string> getDrinksName();
+    Drink getDrink(string name);
     void orderDrinks(vector<string> drinks);
     map<string,string> checkStock();
     string getErrorPT(int);
