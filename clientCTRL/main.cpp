@@ -1,5 +1,8 @@
 #include "src/adminclient.h"
 #include "src/guinf.h"
+#include <iostream>
+
+
 
 int main()
 {
@@ -10,78 +13,125 @@ int main()
     AdminClient AC(&me);
 
 
-    cout << "[*] Requesting drinks list" << endl;
+    if(AC.checkNameDrink("Vodka_og_Redbull")){
+        cout << "Den eksisterer!" << endl;
+    }
+/*
+    map<string,string> stock = AC.checkStock();
 
-   vector<string> test = AC.getDrinksName();
-
-   for (vector<string>::iterator iter = test.begin(); iter != test.end(); iter++){
-
-       cout << *iter << endl;
-   }
-
-
-   cout << endl << "[*] Requesting Ingredients list" << endl;
-
-   vector<string> ings;
-   AC.getIngredientsName(ings);
-
-   for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
-
-       cout << *iter << endl;
-   }
-
-
-   cout << endl << "[*] Creating a drink [Kaffe | Kaffepulver | 25 | vand | 30 | LOL/PATH]" << endl;
-
-   Drink kaffe;
-   kaffe.name =" Kaffe";
-   kaffe.content[0].name="Kaffepulver";
-   kaffe.content[0].amount=25;
-   kaffe.content[1].name="Vand";
-   kaffe.content[1].amount=30;
-   kaffe.path="LOL/PATH";
-
-   AC.createDrink(kaffe);
-
-
-   cout << "[*] Seeing if it worked..." << endl;
-
-   vector<string> test2 = AC.getDrinksName();
-   for (vector<string>::iterator iter = test2.begin(); iter != test2.end(); iter++){
-
-       cout << *iter << endl;
-   }
-
-   if(AC.deleteDrink("Kaffe")){
-       cout << "\n[*]Kaffe should be gone" << endl;
-       vector<string> test3 = AC.getDrinksName();
-       for (vector<string>::iterator iter = test3.begin(); iter != test3.end(); iter++){
-
-           cout << *iter << endl;
-       }
-   }
-   else cout << "[-] ERROR...." << endl;
-
-
-   cout << "\n [*]Seeing if Rom exist (1) and Tea (2)" << endl;
-
-   if (AC.checkNameDrink("Rom"))
-       cout << "[+] Rom exist!" << endl;
-   else
-       cout << "[-] Rom doesnt exist...?" << endl;
-
-   if (AC.checkNameDrink("Tea")){
-       cout << "[-] Tea exist?!" << endl;
-   }
-   else cout << "[+] Tea doesnt exist." << endl;
+    cout << "Size of map: " << stock.size() << endl;
 
 
 
+    for(map<string,string>::iterator it = stock.begin(); it != stock.end(); it++){
+        cout << "NAME: " << it->first << endl;
+        cout << "AMT: " << it->second << endl << endl;
+    }
 
 
 
+    cout << "Get ingrediens" << endl;
+    vector<string> ings;
+    AC.getIngredientsName(ings);
+
+    for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
+        cout << *iter << endl;
+    }
 
 
+    Drink vin;
+    vin.name = "GayMister";
+    vin.path ="/root/home/GayPic.png";
+    vin.content[0].name="Cola";
+    vin.content[0].amount=35;
+
+    AC.createDrink(vin);
+
+
+
+    vector<string> drinks = AC.getDrinksName();
+
+    for (vector<string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
+        cout << *iter << endl;
+    }
+*/
+    Drink get = AC.getDrink("Tequilla Sunrise");
+
+    cout << "!Drink!" << endl;
+    cout << "NAME: " << get.name << endl;
+    cout << "PATH: " << get.path << endl;
+
+    for (int i = 0; i < 5; i++){
+        cout << "ING: " << get.content[i].name << endl;
+        cout << "AMT: "<< get.content[i].amount << endl;
+    }
+
+    cout << "LET's CHANGE DRI!!NK!!" << endl;
+
+    get.content[2].name = "Negersperm";
+    get.content[2].amount = 54;
+
+    AC.changeDrink(get);
+
+
+    Drink get2 = AC.getDrink("Tequilla Sunrise");
+
+    cout << "!Drink!" << endl;
+    cout << "NAME: " << get2.name << endl;
+    cout << "PATH: " << get2.path << endl;
+
+    for (int i = 0; i < 5; i++){
+        cout << "ING: " << get2.content[i].name << endl;
+        cout << "AMT: "<< get2.content[i].amount << endl;
+    }
+
+
+
+    cout << "FUCKING DELEETE" << endl;
+    AC.deleteDrink("GayMister");
+
+
+    cout << "WALLAH CHECK FOR ROM!" << endl;
+    AC.checkNameIngredient("Rom");
+
+
+    cout << "FUCKING TEST FOR LOL  CONTAINERE - TRUE HVIS FINDES" << endl;
+    if(AC.checkContainer(65)){
+        cout << "65 findes" << endl;
+    }
+    else cout << "Fucking a.." << endl;
+
+
+    cout << "TEST af createIngredient" << endl;
+
+    AC.createIngredient("Rumænerbræk",999);
+
+    cout << "WAUWUW! Test af get addr." << endl;
+    cout << "Addres for rumænerbræk: " << AC.getIngredientAddress("Rumænerbræk") << endl;
+
+    cout << "CHANGE THE FUCKING ADDR TO 239" << endl;
+    AC.changeIngredientAddr("Rumænerbræk",239);
+    cout << "Addres for rumænerbræk: " << AC.getIngredientAddress("Rumænerbræk") << endl;
+
+    cout << "FUCK RUMÆNERBRÆK!! DELETE!" << endl;
+    AC.deleteIngredient("Rumænerbræk");
+
+    cout << "WALLAH CHECK FOR RUMÆNERBRÆK!" << endl;
+    if(AC.checkNameIngredient("Rumænerbræk")){
+        cout << "YEAH BITCH!!!" << endl;
+    }
+
+
+    cout << "MOTHERFUCKING CLEANUP! YEARH!" << endl;
+/*
+    AC.clean();
+
+    sleep(2);
+
+    //AC.clean_water();
+
+
+*/
 
 
 

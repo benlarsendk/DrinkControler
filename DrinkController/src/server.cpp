@@ -98,7 +98,7 @@ Server::~Server()
 }
 
 void Server::send(string in, int mysockfd){
-    char data[512];
+    char data[512] = {};
 
     strcpy(data, in.c_str());
     int n = 0;
@@ -107,6 +107,7 @@ void Server::send(string in, int mysockfd){
     if (n < 0)
         error("ERROR writing to socket");
     else Logger::instance()->log("Server wrote: " + in);
+    memset(data, 0, 512);
 
 }
 

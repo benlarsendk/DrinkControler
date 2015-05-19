@@ -12,7 +12,7 @@ void Client::send(std::string dataIn){
 
     std::cout << "Trying to send: " << dataIn << std::endl;
 
-    char data[256];
+    char data[2048];
     strcpy(data,dataIn.c_str());
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,20 +33,25 @@ void Client::send(std::string dataIn){
     if (n < 0)
             error("ERROR writing to socket");
 
-    bzero(data,256);
+    bzero(data,2048);
 
 }
 
 std::string Client::recieve(){
     int n;
-    n = read(sockfd,bufferIn,255);
+    char bufferIn[2048];
+
+    n = read(sockfd,bufferIn,2048);
 
     if (n < 0){
         std::cout << "ERROR: " << n << std::endl;
     }
 
     std::string data(bufferIn);
+    std::cout << "Client got " << data << std::endl;
+    memset(bufferIn,0,512);
     return data;
+
 
 }
 

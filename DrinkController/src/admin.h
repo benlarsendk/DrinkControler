@@ -44,7 +44,7 @@ public:
     Admin(Controller*, DatabaseIF*);
     ~Admin();
     bool checkNameDrink(string namecheck);
-    void decode(string, vector<string> &);
+    string* decode(string);
     map<string,string> checkStock();
     void getIngredientsName(vector <string> & currentIngredients);
     bool createDrink(Drink newDrink);
@@ -65,6 +65,7 @@ public:
 
 private:
     DatabaseIF* db;
+    boost::mutex mtx;
     Controller* GUINF;
     Server* server;
 

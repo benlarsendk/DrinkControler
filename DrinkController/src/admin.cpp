@@ -1,5 +1,5 @@
 #include "admin.h"
-
+#include "sstream"
 
 Admin::Admin(Controller *controller, DatabaseIF* dbI)
 {
@@ -18,10 +18,10 @@ Admin::~Admin(){
 bool Admin::checkNameDrink(string namecheck)
 {
     if(db->checkName(DRINK,namecheck)){
-        return false;
+        return true;
     }
     else{
-       return true;
+       return false;
     }
 
 }
@@ -81,6 +81,7 @@ map<string,string> Admin::checkStock()
         read(fd,tmpBuf,8);
         string tmp(tmpBuf);
         stock[*iter] = tmp;
+        Logger::instance()->log("DEBUG: Ingrediens: " + *iter +" Amt: " + tmp);
     }
 
    return stock;
@@ -131,7 +132,7 @@ bool Admin::checkNameIngredient(string name)
 
 bool Admin::checkContainer(int addr)
 {
-    if(db->checkContainerInUse(addr)){ //return true hvis findes
+    if(db->checkContainerInUse(addr)){
         return false;
     }
     else return true;
@@ -194,71 +195,124 @@ bool Admin::deleteIngredient(string todelte)
 void Admin::clean()
 {
 	int fd = open("/dev/spidev", O_RDWR);	
+    Logger::instance()->log("SPI Device opened");
+    int n;
     u_int8_t clean = 0x03;
     char buff[8];
 
 
-    write(fd,&clean,8);
+    n = write(fd,&clean,8);
+    stringstream ss;
+    ss << n;
+    string str = ss.str();
 
-    while(read(fd,buff,8) == 0){
-        sleep(1);
-	}
+    if(n < 0){ // success on write
+        Logger::instance()->log("Write to PSoC: Clean --> N = " + str);
+        while(read(fd,buff,8) < 0){ // wait for read
+            Logger::instance()->log("Waiting for PSoC clean");
+            sleep(1);
+        }
+    }
+    else Logger::instance()->log("Write to SPIDEV error");
+
 }
 
 void Admin::clean_water(){
     u_int8_t clean = 0x03;
     int fd = open("/dev/spidev", O_RDWR);
+    int n;
     char buff2[8];
 
-    write(fd,&clean,8);
+    n = write(fd,&clean,8);
+    stringstream ss;
+    ss << n;
+    string str = ss.str();
 
-    while(read(fd,buff2,8) == 0){
-        sleep(1);
+
+    if (n < 0){
+        Logger::instance()->log("Write to PSoC: Clean Water --> N = " + str);
+        while(read(fd,buff2,8) < 0){
+            Logger::instance()->log("Waiting for PSoC clean #2");
+            sleep(1);
+        }
+
     }
+    else Logger::instance()->log("Write to SPIDEV error");
 }
 
-void Admin::decode(string encoded, vector <string> & decoded){
+string* Admin::decode(string encoded){
+    boost::mutex::scoped_lock(mtx);
+    Logger::instance()->log("Decoder started");
 
-    string tmp;
-    for (unsigned int i = 3; i < encoded.length(); i++){
+    string* data = new string[100];
 
-        if (encoded[i] == ':'){
-            decoded.push_back(tmp);
-            tmp = "";
-        }
-        else tmp = tmp + encoded[i];
+    int count = 0;
+
+    for (int i = 0; i < 100; i++){
+        data[i] = "*";
     }
+
+
+    string tmp ="";
+
+    for (unsigned int i = 0; i < encoded.length(); i++){
+        tmp += encoded[i];
+        if (encoded[i] == ':'){
+            string push = tmp.substr(0, tmp.size()-1);
+            data[count] = push;
+            count++;
+            tmp = "";
+            push ="";
+        }
+    }
+
+
+    Logger::instance()->log("At 0:" + data[0]);
+    Logger::instance()->log("At 1:" + data[1]);
+    Logger::instance()->log("At 2:" + data[2]);
+    return data;
+
 
 }
 
 void Admin::parser(char * input, int mySock){
     if(input != NULL){
-        string data(input);
-        string cmd;
-        if (data[1] == ':'){
-            cmd = data[0];
-        }
-        else cmd = data.substr(0,2);
 
+        string data(input);
+        Logger::instance()->log("Parser recieved: " + data);
+
+        string cmd;
+
+        for (int i = 0; i < data.size(); i++){
+            if(data[i] == ':'){
+                break;
+            }
+            else cmd += data[i];
+        }
+        Logger::instance()->log("Command found: " + cmd);
         int id = atoi(cmd.c_str()); // få ID'et
 
-        vector<string> newData;
-        decode(data, newData);
-        string tosend;
 
-        tosend = "";
+
+        string* newData = decode(data);
+        string tosend ="";
+
         switch(id){
 
         case CHECKNAMEDRINK:
             {
-                if(checkNameDrink(newData.at(0)) == true){
-                server->send("TRUE",mySock);
+                Logger::instance()->log("Entered the case. checking on: " +newData[1]);
+                if(checkNameDrink(newData[1]) == true){
+                    server->send("TRUE",mySock);
             }
                 else{
                     server->send("FALSE",mySock);
                     }
+
+                delete[] newData;
                 break;
         }
+
         case CHECKSTOCK:
             {
                 map<string,string> ings = checkStock();
@@ -272,6 +326,7 @@ void Admin::parser(char * input, int mySock){
                 break;
 
             }
+
         case GETINGREDIENTSNAME:
             {
                 vector<string> current;
@@ -288,10 +343,10 @@ void Admin::parser(char * input, int mySock){
             {
 
                 Drink newDrink;
-                newDrink.name = newData.at(0);
+                newDrink.name = newData[1];
                 for (int i = 0; i < 5; i++){
-                    newDrink.content[i].name = newData.at(i+1);
-                    string amt = newData.at(i+2);
+                    newDrink.content[i].name = newData[i+2];
+                    string amt = newData[i+3];
                     newDrink.content[i].amount = atoi(amt.c_str());
                 }
                // newDrink.path = newData.at(12);
@@ -306,7 +361,7 @@ void Admin::parser(char * input, int mySock){
 
         case GETDRINKSNAME:
             {
-            /*
+
                 vector<string> drinks = getDrinksName();
 
                 for (vector<string>::iterator iter = drinks.begin(); iter != drinks.end(); iter++){
@@ -314,23 +369,28 @@ void Admin::parser(char * input, int mySock){
                     tosend += ":";
                 }
                 server->send(tosend,mySock);
-             */    break;
+                break;
             }
 
         case GETDRINK:
             {
-                Drink local = getDrink(newData.at(1));
+                Drink local = getDrink(newData[1]);
 
                 tosend += local.name;
                 tosend += ":";
                 for (int i = 0; i < 5; i++){
                     tosend+=local.content[i].name;
                     tosend+=":";
-                    tosend+=local.content[i].amount;
+                    stringstream ss;
+                    ss << local.content[i].amount;
+                    string str = ss.str();
+                    tosend+=ss.str();
                     tosend+=":";
                 }
                 tosend += local.path;
+                Logger::instance()->log("Pushing path " + local.path);
                 tosend += ":";
+                Logger::instance()->log("gd sending: " + tosend);
                 server->send(tosend,mySock);
                 break;
             }
@@ -338,14 +398,14 @@ void Admin::parser(char * input, int mySock){
         case CHANGEDRINK:
                 {
                     Drink newDrink;
-                    newDrink.name = newData.at(1);
+                    newDrink.name = newData[1];
                     for (int i = 0; i < 5; i++){
-                        newDrink.content[i].name = newData.at(i+2);
-                        string amt = newData.at(i+3);
+                        newDrink.content[i].name = newData[i+1];
+                        string amt = newData[i+2];
                         newDrink.content[i].amount = atoi(amt.c_str());
                     }
-                    newDrink.path = newData.at(12);
-                    if (createDrink(newDrink) == true)
+                    newDrink.path = newData[11];
+                    if (changeDrink(newDrink) == true)
                     {
                         //server->send("TRUE",mySock);
 
@@ -356,7 +416,7 @@ void Admin::parser(char * input, int mySock){
 
         case DELETEDRINK:
         {
-            if (deleteDrink(newData.at(1))){
+            if (deleteDrink(newData[1])){
                 server->send("TRUE",mySock);
             }
             else server->send("FALSE",mySock);
@@ -366,7 +426,7 @@ void Admin::parser(char * input, int mySock){
 
         case CHECKNAMEINGREDIENT:
         {
-            if (checkNameIngredient(newData.at(1)))
+            if (checkNameIngredient(newData[1]))
             {
                 server->send("TRUE",mySock);
             }
@@ -377,7 +437,7 @@ void Admin::parser(char * input, int mySock){
 
         case CHECKCONTAINER:
         {
-            string par = newData.at(1);
+            string par = newData[1];
 
             if (checkContainer(atoi(par.c_str()))){
                 server->send("TRUE",mySock);
@@ -386,12 +446,12 @@ void Admin::parser(char * input, int mySock){
 
             break;
         }
-            //
+
 
         case CREATEINGREDIENT: // string name int addr
         {
-            string name = newData.at(1);
-            string addr = newData.at(2);
+            string name = newData[1];
+            string addr = newData[2];
             int rAddr = atoi(addr.c_str());
 
             if(createIngredient(name,rAddr)){
@@ -401,18 +461,23 @@ void Admin::parser(char * input, int mySock){
         }
         case GETINGREDIENTADDR:    
         {
-            int addr = getIngredientAddress(newData.at(1));
-            string tmp;
-            tmp += addr;
-           // string tmp = std::to_string(addr);
+            int addr = getIngredientAddress(newData[1]);
+            stringstream ss;
+            ss << addr;
+            string tmp = ss.str();
             server->send(tmp,mySock);
-        }
-            //
             break;
+        }
+
+
         case CHANGEINGREDIENTADDR:
         {
-            string name = newData.at(1);
-            string addr = newData.at(2);
+            string name = newData[1];
+            string addr = newData[2];
+            Logger::instance()->log("INGNAME: : " + newData[1]);
+            Logger::instance()->log("INGADDR: : " + newData[2]);
+
+
             int rAddr = atoi(addr.c_str());
             if(changeIngredientAddr(name,rAddr)){
                 server->send("TRUE",mySock);
@@ -423,7 +488,7 @@ void Admin::parser(char * input, int mySock){
 
         case DELETEINGREDIENT:
         {
-            if (deleteIngredient(newData.at(1))){
+            if (deleteIngredient(newData[1])){
                 server->send("TRUE",mySock);
             }
             else server->send("FALSE",mySock);
@@ -438,23 +503,17 @@ void Admin::parser(char * input, int mySock){
         }
         case CLEAN_WATER:
         {
-
             clean_water();
             server->send("ADD_NORMAL",mySock);
         }
-
+/*
         case GETERROR:
         {
             string tmp = newData.at(1);
             server->send(getErrorPT(atoi(tmp.c_str())),mySock);
+            }
 
-        }
-        case 99:
-        {
-            string tmp = "Debugging12345";
-            server->send(tmp,mySock);
-            break;
-        }
+        */
         default:
             server->send("WHATTHEFUCK!?!?!",mySock);
             break;

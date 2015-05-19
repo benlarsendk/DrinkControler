@@ -19,11 +19,13 @@ struct DrinkContent
     int amount;
 };
 
-struct Drink
+class Drink
 {
 public:
-    Drink()
-{
+    string name, path;
+    DrinkContent content[5];
+
+    Drink(){
     for (int i = 0; i < 5; i++)
     {
         content[i].name = "NOT_DECLARED";
@@ -32,17 +34,6 @@ public:
     name = "NOT_DECLARED";
     path = "STD/PATH/TO/TMP.png";
 
-    }
-
-    string name;
-    string path;
-    DrinkContent content[5];
-
-    Drink(const Drink& Copy){
-    this->name = Copy.name;
-    for (int i = 0; i < 5; i++){
-        this->content[i] = Copy.content[i];
-    }
     }
 };
 #endif // DRINKER

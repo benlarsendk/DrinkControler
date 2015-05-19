@@ -7,8 +7,8 @@ using namespace std;
 DatabaseIF::DatabaseIF()
 {
     Logger::instance()->log("DEBUG: DBIF CTOR loaded.");
-  //    char* dbname = "/home/root/drinksdatabase.db";
-    char* dbname = "/home/deblab/Dropbox/IHA/3SEM/PRJ3/Controllers_THIS_IS_WORKING_MED_DBIF_OSV/admin/DrinkController/database/drinksdatabase.db";
+    char* dbname = "/home/root/drinksdatabase.db";
+    //char* dbname = "/home/deblab/Dropbox/IHA/3SEM/PRJ3/Controllers_THIS_IS_WORKING_MED_DBIF_OSV/admin/DrinkController/database/drinksdatabase.db";
     if(sqlite3_open(dbname,&db) == SQLITE_OK){
         lastError = NO_ERRORS;
         //cout << "Database loaded." << endl;
@@ -157,6 +157,7 @@ bool DatabaseIF::checkName(int choice, string searchfor)
 
     for(vector<vector<string> >::iterator iter = result.begin(); iter != result.end(); iter++){
         vector<string>row = *iter;
+        Logger::instance()->log("Comparing " + row.at(0) + " to " + searchfor);
         if(row.at(0) == searchfor)
             return true;
         }
@@ -219,20 +220,26 @@ int DatabaseIF::getDrink(string namesearch, Drink & outDrink)
 
 
     vector<vector<string> > result = query("SELECT * FROM Drinks");
+    Logger::instance()->log("Searching for " + namesearch);
 
     for(vector<vector<string> >::iterator iter = result.begin(); iter != result.end(); iter++){
         vector<string> row = *iter;
 
+        Logger::instance()->log("Comparing " + row.at(0) + " to " + namesearch);
         if(row.at(0) == namesearch){
             int x = 0;
             outDrink.name = row.at(0);
+            Logger::instance()->log("Pushing name " + row.at(0));
             for (int i = 0; i < 5; i++){
                 outDrink.content[i].name = row.at(x+1);
+                Logger::instance()->log("Pushing name " + row.at(x+1));
                 string amt = row.at(x+2);
                 outDrink.content[i].amount = atoi(amt.c_str());
+                Logger::instance()->log("Pushing name " + row.at(x+2));
                 x+=2;
             }
             outDrink.path = row.at(11);
+            Logger::instance()->log("Pushing path " + row.at(11));
             lastError = NO_ERRORS;
             return lastError;
         }
@@ -338,11 +345,13 @@ int DatabaseIF::createIngredient(string name, int addr)
 int DatabaseIF::getIngAdress(string getaddr, int & addr)
 {
     if (checkName(INGREDIENT,getaddr)){
-
         vector<vector<string> > result = query("SELECT * FROM Ingredienser");
         for(vector<vector<string> >::iterator iter = result.begin(); iter != result.end(); iter++){
                vector<string> row = *iter;
+               Logger::instance()->log("Comparing " + row.at(0) + " to " + getaddr);
+
                if(row.at(0) == getaddr){
+                   Logger::instance()->log("Match found. Addr should be: " + row.at(1));
                    string tmprow = row.at(1);
                    addr = atoi(tmprow.c_str());
                }
@@ -355,8 +364,18 @@ int DatabaseIF::getIngAdress(string getaddr, int & addr)
 
 int DatabaseIF::changeIngrediensAddr(string ing, int newadd)
 {
-    remove(ing,INGREDIENT);
-    createIngredient(ing,newadd);
+    stringstream ss;
+    ss << newadd;
+    string str = ss.str();
+
+
+    string cmd = "UPDATE Ingredienser SET Addr=";
+    cmd.append(str);
+    cmd.append(" WHERE Navn='");
+    cmd.append(ing);
+    cmd.append("';");
+
+    query(cmd);
     return lastError;
 }
 

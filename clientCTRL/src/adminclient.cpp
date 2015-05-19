@@ -34,16 +34,15 @@ void AdminClient::changeDrink(Drink drinktoedit)
      tosend.append(":");
     }
     tosend.append(drinktoedit.path);
+    tosend.append(":");
 
     client->send(tosend);
 }
 
 void AdminClient::clean()
 {
-    string tosend;
-    stringstream out;
-    out << CHANGEDRINK;
-    tosend = out.str();
+    string tosend = to_string(CLEAN);
+    tosend.append(":");
     client->send(tosend);
     string in = client->recieve();
     GUINF->print(in);
@@ -52,6 +51,7 @@ void AdminClient::clean()
 void AdminClient::clean_water()
 {
     string tosend = to_string(CLEAN_WATER);
+    tosend.append(":");
     client->send(tosend);
     string in = client->recieve();
     GUINF->print(in);
@@ -81,6 +81,7 @@ bool AdminClient::deleteDrink(string todelte)
     string tosend = to_string(DELETEDRINK);
     tosend.append(":");
     tosend.append(todelte);
+    tosend.append(":");
     client->send(tosend);
 
     if(client->recieve() == "TRUE"){
@@ -96,7 +97,9 @@ bool AdminClient::checkNameIngredient(string name)
     string tosend = to_string(CHECKNAMEINGREDIENT);
     tosend.append(":");
     tosend.append(name);
+    tosend.append(":");
     client->send(tosend);
+
 
     if (client->recieve() == "TRUE"){
         return true;
@@ -109,6 +112,7 @@ bool AdminClient::checkContainer(int addr)
     tosend.append(":");
     tosend.append(to_string(addr));
     client->send(tosend);
+    tosend.append(":");
 
     if (client->recieve() == "TRUE"){
         return true;
@@ -124,7 +128,9 @@ bool AdminClient::changeIngredientAddr(string name,int newAddr)
     tosend.append(name);
     tosend.append(":");
     tosend.append(to_string(newAddr));
+    tosend.append(":");
     client->send(tosend);
+
 
     if (client->recieve() == "TRUE"){
         return true;
@@ -137,6 +143,7 @@ bool AdminClient::deleteIngredient(string todelte)
     string tosend = to_string(DELETEINGREDIENT);
     tosend.append(":");
     tosend.append(todelte);
+    tosend.append(":");
     client->send(tosend);
 
     if (client->recieve() == "TRUE"){
@@ -151,6 +158,7 @@ void AdminClient::createIngredient(string name, int addr)
     tosend.append(name);
     tosend.append(":");
     tosend.append(to_string(addr));
+    tosend.append(":");
     client->send(tosend);
 }
 
@@ -159,6 +167,7 @@ int AdminClient::getIngredientAddress(string ingredient)
     string tosend = to_string(GETINGREDIENTADDR);
     tosend.append(":");
     tosend.append(ingredient);
+    tosend.append(":");
     client->send(tosend);
     string in = client->recieve();
     return atoi(in.c_str());
@@ -169,6 +178,7 @@ bool AdminClient::checkNameDrink(string namecheck)
     string tosend = to_string(CHECKNAMEDRINK);
     tosend.append(":");
     tosend.append(namecheck);
+    tosend.append(":");
     client->send(tosend);
 
     if(client->recieve() == "TRUE"){
@@ -183,14 +193,15 @@ void AdminClient::createDrink(Drink newDrink)
     tosend.append(":");
     tosend.append(newDrink.name);
     tosend.append(":");
-    for (int i = 0; i < 5; i++){
-     tosend.append(newDrink.content[i].name);
-     tosend.append(":");
-     tosend.append(to_string(newDrink.content[i].amount));
-     tosend.append(":");
+
+    for (unsigned int i = 0; i < 5; i++){
+        tosend.append(newDrink.content[i].name);
+        tosend.append(":");
+        tosend.append(to_string(newDrink.content[i].amount));
+        tosend.append(":");
     }
     tosend.append(newDrink.path);
-
+    tosend.append(":");
     client->send(tosend);
 }
 
@@ -232,40 +243,26 @@ std::map<string,string> AdminClient::checkStock()
 
     string in = client->recieve();
 
-    //første første, anden anden
-
+    //string in = ":Appelsinjuice:10:Cola:15:Grenadine sirup:15:";
     map<string,string> stock; // Navn, mængde
     string tmp;
-    vector<string> name;
-    vector<string> amt;
+    vector<string> sheit;
 
-    // Tager navne
     for (unsigned int i = 0; i < in.size(); i++){
-        if(in.at(i) == ':'){
-            name.push_back(tmp);
+        if(in[i] == ':'){
+            sheit.push_back(tmp);
             tmp = "";
         }
         else{
-            tmp += in.at(i);
+            tmp += in[i];
         }
-
-        i++;
-    }
-
-    for (unsigned int i = 0; i < in.size(); i++){
-        if(in.at(i) == ':'){
-            amt.push_back(tmp);
-            tmp = "";
-        }
-        else tmp += in.at(i);
-
-        i++;
     }
 
 
-    for (vector<string>::iterator iter = name.begin(); iter != name.end(); iter++){
-
-        stock[*iter] = "0000"; // fixme
+    for (vector<string>::iterator iter = sheit.begin(); iter != sheit.end(); iter++){
+        string tmp = *iter;
+        iter++;
+        stock[tmp] = *iter;
     }
 
     return stock;
@@ -293,17 +290,57 @@ Drink AdminClient::getDrink(string name)
     string tosend = to_string(GETDRINK);
     tosend.append(":");
     tosend.append(name);
+    tosend.append(":");
     client->send(tosend);
     string in = client->recieve();
 
-    Drink newDrink;
-    newDrink.name = in.at(1);
-    for (int i = 0; i < 5; i++){
-        newDrink.content[i].name = in.at(i+2);
-        string amt;
-        amt += in.at(i+3);
-        newDrink.content[i].amount = atoi(amt.c_str());
-    }
-    newDrink.path = in.at(12);
+    string* data = new string[100];
 
-    return newDrink;}
+    int count = 0;
+    for (int i = 0; i < 100; i++){
+        data[i] = "*";
+    }
+    string tmp ="";
+
+    for (unsigned int i = 0; i < in.length(); i++){
+        tmp += in[i];
+        if (in[i] == ':'){
+            string push = tmp.substr(0, tmp.size()-1);
+            data[count] = push;
+            count++;
+            tmp = "";
+            push ="";
+        }
+    }
+
+    Drink newDrink;
+    string amt;
+
+    newDrink.name = data[0];
+    newDrink.content[0].name = data[1];
+    amt = data[2];
+    newDrink.content[0].amount = atoi(amt.c_str());
+
+    newDrink.content[1].name = data[3];
+    amt = data[4];
+    newDrink.content[1].amount = atoi(amt.c_str());
+
+    newDrink.content[2].name = data[5];
+    amt = data[6];
+    newDrink.content[2].amount = atoi(amt.c_str());
+
+    newDrink.content[3].name = data[7];
+    amt = data[8];
+    newDrink.content[3].amount = atoi(amt.c_str());
+
+    newDrink.content[4].name = data[9];
+    amt = data[10];
+    newDrink.content[4].amount = atoi(amt.c_str());
+    amt = data[11];
+    newDrink.content[4].amount = atoi(amt.c_str());
+
+    newDrink.path = data[12];
+
+
+    return newDrink;
+}

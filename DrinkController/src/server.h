@@ -29,7 +29,7 @@ private:
      int portno_;
      void connectionHandler(void *);
      socklen_t clien_;
-     char buffer_[512];
+     char buffer_[2048];
      struct sockaddr_in serv_addr, cli_addr;
      Admin* admin;
 
