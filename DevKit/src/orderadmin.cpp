@@ -35,7 +35,9 @@ vector<string> orderAdmin::getDrinksName()
 
 void orderAdmin::orderDrinks(vector<string> drinks){
 
+
     if(GUINF->confirmOrder()){
+        boost::mutex::scoped_lock scoped_lock(mtx);
         orders.push(drinks);
         bell.notify_all();
         }
@@ -51,12 +53,12 @@ void orderAdmin::handleOrder()
     boost::mutex::scoped_lock scoped_lock(mtx);
     for(;;)
     {
-        //cout << "ho open" << endl;
         while(orders.empty())
             bell.wait(scoped_lock);
 
         vector<string> drinks = orders.front();
         orders.pop();
+        scoped_lock.unlock();
 
         int fd = open("/dev/spidev", O_RDWR);
         for(vector<string>::iterator i = drinks.begin(); i < drinks.end(); i++){
