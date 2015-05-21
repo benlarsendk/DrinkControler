@@ -81,8 +81,14 @@ map<string,string> Admin::checkStock()
         char tmpBuf[8];
         read(fd,tmpBuf,8);
         string tmp(tmpBuf);
+        int smallvalue = atoi(tmp.c_str());
+        int realval = 4*smallvalue;
 
-        stock[*iter] = tmp;
+        stringstream ss;
+        ss << realval;
+        string stringval = ss.str();
+
+        stock[*iter] = stringval;
         Logger::instance()->log("DEBUG: Ingrediens: " + *iter +" Amt: " + tmp);
     }
 
@@ -106,7 +112,7 @@ map<string,string> Admin::getTemp()
     int fd = open("/dev/spidev", O_RDWR);
     u_int8_t cmd[] = "4";
     write(fd,cmd,8); // temp state
-    sleep(2);
+    sleep(5);
 
 
     for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
@@ -283,7 +289,6 @@ void Admin::clean_water(){
 }
 
 string* Admin::decode(string encoded){
-    boost::mutex::scoped_lock(mtx);
     Logger::instance()->log("Decoder started");
 
     string* data = new string[100];
@@ -307,11 +312,6 @@ string* Admin::decode(string encoded){
             push ="";
         }
     }
-
-
-    Logger::instance()->log("At 0:" + data[0]);
-    Logger::instance()->log("At 1:" + data[1]);
-    Logger::instance()->log("At 2:" + data[2]);
     return data;
 
 
@@ -351,7 +351,7 @@ void Admin::parser(char * input, int mySock){
                     server->send("FALSE",mySock);
                     }
 
-                delete[] newData;
+
                 break;
         }
 
@@ -379,6 +379,7 @@ void Admin::parser(char * input, int mySock){
                     tosend += ":";
                 }
                 server->send(tosend,mySock);
+
                 break;
             }
         case CREATEDRINK:
@@ -397,6 +398,7 @@ void Admin::parser(char * input, int mySock){
                    server->send("TRUE",mySock);
                 }
                 else server->send("FALSE",mySock);
+
 
                 break;
             }
@@ -573,6 +575,7 @@ void Admin::parser(char * input, int mySock){
             server->send("WHATTHEFUCK!?!?!",mySock);
             break;
         }
+        delete[] newData;
 
 
         }

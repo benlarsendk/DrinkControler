@@ -11,25 +11,16 @@ int main()
     cout << "[*] Creating Controller and AC" << endl;
     Controller me;
     AdminClient AC(&me);
-/*
-	AC.clean();
 
 
-    if(AC.checkNameDrink("Vodka_og_Redbull")){
-        cout << "Den eksisterer!" << endl;
-    }
-*/
-    map<string,string> stock = AC.checkStock();
-
-    cout << "Size of map: " << stock.size() << endl;
+    map<string,string> stock = AC.getTemp();
 
 
 
     for(map<string,string>::iterator it = stock.begin(); it != stock.end(); it++){
         cout << "NAME: " << it->first << endl;
-        cout << "AMT: " << it->second << endl << endl;
+        cout << "TMP: " << it->second << endl << endl;
     }
-
 
 
 

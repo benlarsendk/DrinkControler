@@ -48,7 +48,6 @@ std::string Client::recieve(){
     }
 
     std::string data(bufferIn);
-    //std::cout << "Client got " << data << std::endl;
     memset(bufferIn,0,512);
     return data;
 
@@ -62,4 +61,5 @@ Client::~Client()
 
 void Client::error(std::string err){
     std::cout << "Error: " << err << std::endl;
+
 }

@@ -42,6 +42,7 @@ class AdminClient
 public:
     AdminClient(Controller*);
     ~AdminClient();
+
     void changeDrink(Drink drinktoedit);
     void clean();
     void debug();

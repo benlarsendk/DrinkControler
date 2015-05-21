@@ -121,7 +121,7 @@ bool AdminClient::checkContainer(int addr)
 
 }
 
-bool AdminClient::changeIngredientAddr(string name,int newAddr)
+bool AdminClient::  changeIngredientAddr(string name,int newAddr)
 {
     string tosend = to_string(CHANGEINGREDIENTADDR);
     tosend.append(":");
