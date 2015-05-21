@@ -268,6 +268,38 @@ std::map<string,string> AdminClient::checkStock()
     return stock;
 }
 
+
+std::map<string,string> AdminClient::getTemp()
+{
+    string tosend = to_string(GETTEMP);
+    client->send(tosend);
+
+    string in = client->recieve();
+
+    map<string,string> temp; // Navn, temp
+    string tmp;
+    vector<string> sheit;
+
+    for (unsigned int i = 0; i < in.size(); i++){
+        if(in[i] == ':'){
+            sheit.push_back(tmp);
+            tmp = "";
+        }
+        else{
+            tmp += in[i];
+        }
+    }
+
+
+    for (vector<string>::iterator iter = sheit.begin(); iter != sheit.end(); iter++){
+        string tmp = *iter;
+        iter++;
+        temp[tmp] = *iter;
+    }
+
+    return temp;
+}
+
 void AdminClient::debug()
 {
     client->send("99");

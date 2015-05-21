@@ -35,7 +35,8 @@ enum
     DELETEINGREDIENT = 14,
     CLEAN = 15,
     GETERROR = 16,
-    CLEAN_WATER = 17
+    CLEAN_WATER = 17,
+    GETTEMP = 18
 };
 
 class Admin
@@ -46,6 +47,7 @@ public:
     bool checkNameDrink(string namecheck);
     string* decode(string);
     map<string,string> checkStock();
+    map<string,string> getTemp();
     void getIngredientsName(vector <string> & currentIngredients);
     bool createDrink(Drink newDrink);
     vector<string> getDrinksName();

@@ -32,7 +32,8 @@ enum
     DELETEINGREDIENT = 14,
     CLEAN = 15,
     GETERROR = 16,
-    CLEAN_WATER = 17
+    CLEAN_WATER = 17,
+    GETTEMP = 18
 };
 
 
@@ -46,6 +47,7 @@ public:
     void debug();
     void listen();
     void clean_water();
+    map<string,string> getTemp();
     void getIngredientsName(vector <string> & currentIngredients);
     bool deleteDrink(string todelte);
     bool checkNameIngredient(string name);

@@ -74,18 +74,51 @@ map<string,string> Admin::checkStock()
     int fd = open("/dev/spidev", O_RDWR);
     u_int8_t cmd[] = "2";
     write(fd,cmd,8); // stock state
-    sleep(3);
+    sleep(2);
 
 
     for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
         char tmpBuf[8];
         read(fd,tmpBuf,8);
         string tmp(tmpBuf);
+
         stock[*iter] = tmp;
         Logger::instance()->log("DEBUG: Ingrediens: " + *iter +" Amt: " + tmp);
     }
 
    return stock;
+
+}
+
+map<string,string> Admin::getTemp()
+{
+    vector<string> ings;
+
+    if(db->getIngredientsName(ings)!=0){
+        Logger::instance()->log("DB ERROR: " + getErrorPT(db->getLastError()));
+        map<string,string> error;
+        return error;
+    }
+
+
+    map<string,string> temp; // Navn, mængde
+
+    int fd = open("/dev/spidev", O_RDWR);
+    u_int8_t cmd[] = "4";
+    write(fd,cmd,8); // temp state
+    sleep(2);
+
+
+    for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
+        char tmpBuf[8];
+        read(fd,tmpBuf,8);
+        string tmp(tmpBuf);
+
+        temp[*iter] = tmp;
+        Logger::instance()->log("DEBUG: Ingrediens: " + *iter +" temp: " + tmp);
+    }
+
+   return temp;
 
 }
 
@@ -514,6 +547,19 @@ void Admin::parser(char * input, int mySock){
         {
             clean_water();
             server->send("ADD_NORMAL",mySock);
+        }
+        case GETTEMP:
+        {
+            map<string,string> ings = getTemp();
+            for (map<string,string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
+                tosend.append(iter->first);
+                tosend += ":";
+                tosend.append(iter->second);
+                tosend += ":";
+            }
+            server->send(tosend,mySock);
+            break;
+
         }
 /*
         case GETERROR:
