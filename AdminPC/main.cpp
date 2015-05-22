@@ -13,13 +13,13 @@ int main()
     AdminClient AC(&me);
 
 
-    map<string,string> stock = AC.getTemp();
+    map<string,string> stock = AC.checkStock();
 
 
 
     for(map<string,string>::iterator it = stock.begin(); it != stock.end(); it++){
         cout << "NAME: " << it->first << endl;
-        cout << "TMP: " << it->second << endl << endl;
+        cout << "AMT: " << it->second << endl << endl;
     }
 
 

@@ -74,7 +74,7 @@ map<string,string> Admin::checkStock()
     int fd = open("/dev/spidev", O_RDWR);
     u_int8_t cmd[] = "2";
     write(fd,cmd,8); // stock state
-    sleep(2);
+    sleep(5);
 
 
     for (vector<string>::iterator iter = ings.begin(); iter != ings.end(); iter++){
@@ -82,7 +82,7 @@ map<string,string> Admin::checkStock()
         read(fd,tmpBuf,8);
         string tmp(tmpBuf);
         int smallvalue = atoi(tmp.c_str());
-        int realval = 4*smallvalue;
+        int realval = 8*smallvalue;
 
         stringstream ss;
         ss << realval;
