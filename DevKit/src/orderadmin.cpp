@@ -50,9 +50,9 @@ void orderAdmin::orderDrinks(vector<string> drinks){
 
 void orderAdmin::handleOrder()
 {
-    boost::mutex::scoped_lock scoped_lock(mtx);
     for(;;)
     {
+        boost::mutex::scoped_lock scoped_lock(mtx);
         while(orders.empty())
             bell.wait(scoped_lock);
 
